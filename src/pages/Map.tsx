@@ -24,7 +24,7 @@ export function Map() {
         </div>
 
         {/* Map Container */}
-        <div className="relative rounded-2xl border border-[#2d1b4e]/50 overflow-hidden bg-[#0a0a0a]">
+        <div className="relative rounded-2xl border border-[#2d1b4e]/50 overflow-hidden bg-[#0d0d12]">
           {/* Map Image */}
           <div className="relative w-full">
             <img

@@ -468,8 +468,7 @@ export function Home() {
         </div>
       </section>
 
-      {/* ATLAS DE TERRENOR SECTION */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-[#2d1b4e]/30 bg-gradient-to-b from-transparent to-[#0d0d12]/50">
         <div className="max-w-7xl mx-auto text-center">
           <h2
             className="text-4xl font-bold mb-4 gradient-text"

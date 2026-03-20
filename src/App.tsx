@@ -40,7 +40,7 @@ function AppContent() {
   const hideFooter = pathname === '/tabuleiro';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] grain-overlay">
+    <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-b from-transparent via-[#1a0b2e]/10 to-[#0a0a0a] grain-overlay">
       <Header />
       <main>
         <Routes>
