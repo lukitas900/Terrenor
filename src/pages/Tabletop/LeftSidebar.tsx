@@ -201,6 +201,9 @@ export const LeftSidebar = () => {
         <button onClick={clearMapObjects} className="flex items-center gap-2 text-pink-400 text-xs border border-pink-900/40 px-3 py-2 rounded w-full hover:bg-pink-900/10 transition-all">
           <Trash2 size={12} /> Apagar Poças
         </button>
+        <button onClick={clearArrows} className="flex items-center gap-2 text-orange-400 text-xs border border-orange-900/40 px-3 py-2 rounded w-full hover:bg-orange-900/10 transition-all">
+          <Trash2 size={12} /> Apagar Setas
+        </button>
       </div>
 
       <hr className="border-[#2d1b4e]/30" />

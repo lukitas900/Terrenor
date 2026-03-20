@@ -45,7 +45,7 @@ const ArrowSVG = ({
   ].join(' ');
 
   return (
-    <g onClick={onClick} style={{ cursor: 'pointer' }}>
+    <g onClick={onClick} style={{ cursor: 'pointer', pointerEvents: 'auto' }}>
       <line x1={x1c} y1={y1c} x2={x2c} y2={y2c} strokeWidth={18} stroke="transparent" />
       <line
         x1={x1c} y1={y1c} x2={lineEndX} y2={lineEndY}
