@@ -61,7 +61,7 @@ export const MapBoard = () => {
   const {
     state, setState, isLoaded,
     activeColor, activeTool,
-    toggleGridMarking, setGridMarking,
+    setGridMarking,
     addArrow, removeArrow,
     setSelectedCharacterId, setSelectedMapObjectId,
     toggleFog, setFogRange, removeFogRange
