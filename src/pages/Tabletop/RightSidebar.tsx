@@ -115,10 +115,10 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleAddCharacter = () => {
-    if (tokenDataUrls.length > 0 && tokenName) {
+    if (tokenDataUrls.length > 0) {
       const newChar: Character = {
         id: Math.random().toString(36).substr(2, 9),
-        name: tokenName,
+        name: tokenName.trim() || 'Sem Nome',
         imageUrl: tokenDataUrls[0],
         alternativeImages: tokenDataUrls,
         position: { x: Math.floor(GRID_WIDTH / 2) - 1, y: Math.floor(GRID_HEIGHT / 2) - 1 },
@@ -152,7 +152,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
             <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Nome da Entidade</label>
             <input 
               type="text" 
-              placeholder="Ex: Guerreiro Orc, Baú Mágico..." 
+              placeholder="Nome da Entidade (Opcional)" 
               className="w-full bg-black/40 border border-[#2d1b4e] rounded-lg px-4 py-3 outline-none focus:border-[#9d4edd] text-white transition-all shadow-inner"
               value={tokenName}
               onChange={e => setTokenName(e.target.value)}
@@ -206,7 +206,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
 
           <button 
             onClick={handleAddCharacter}
-            disabled={!tokenName || tokenDataUrls.length === 0}
+            disabled={tokenDataUrls.length === 0}
             className="w-full bg-[#9d4edd] hover:bg-purple-500 disabled:opacity-30 disabled:cursor-not-allowed text-white py-4 rounded-lg transition-all font-bold text-lg mt-2 shadow-[0_0_20px_rgba(157,78,221,0.2)]"
           >
             Adicionar ao Tabuleiro
@@ -336,7 +336,14 @@ const CharacterDetails = ({ character }: { character: Character }) => {
       {/* Header compact */}
       <div className="flex items-center justify-between gap-2 border-b border-white/5 pb-2">
          <div className="flex-1 min-w-0">
-           <h3 className="font-bold text-white text-base truncate">{character.name}</h3>
+          <input 
+            type="text" 
+            value={character.name} 
+            onChange={e => updateCharacter(character.id, { name: e.target.value })}
+            placeholder="Sem Nome"
+            className="font-bold text-white text-base truncate bg-transparent border-b border-transparent focus:border-purple-500/50 outline-none w-full transition-all"
+            spellCheck={false}
+          />
            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
              {character.alternativeImages && character.alternativeImages.map((url, i) => (
                <button 

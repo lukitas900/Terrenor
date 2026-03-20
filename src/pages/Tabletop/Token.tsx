@@ -222,21 +222,23 @@ export const Token = ({ character }: TokenProps) => {
 
 
       {/* Name */}
-      <div
-        className="absolute pointer-events-none whitespace-nowrap text-xs text-white font-semibold"
-        style={{
-          top: nameTop,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 60,
-          background: 'rgba(0,0,0,0.85)',
-          padding: '2px 8px',
-          borderRadius: 4,
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
-      >
-        {character.name}
-      </div>
+      {character.name && (
+        <div
+          className="absolute pointer-events-none whitespace-nowrap text-xs text-white font-semibold"
+          style={{
+            top: nameTop,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 60,
+            background: 'rgba(0,0,0,0.85)',
+            padding: '2px 8px',
+            borderRadius: 4,
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          {character.name}
+        </div>
+      )}
 
     </div>
   );

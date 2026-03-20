@@ -4,7 +4,7 @@ import type { TabletopState, Character, MapObject, MapArrow } from './types';
 import { loadStateFromDB, saveStateToDB } from './indexedDB';
 
 // Tools
-export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow';
+export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow' | 'fog' | 'reveal';
 
 // Default initial state
 const initialState: TabletopState = {
@@ -13,6 +13,7 @@ const initialState: TabletopState = {
   mapObjects: [],
   gridMarkings: {},
   mapArrows: [],
+  fogOfWar: {}, // Group ID (1-8) -> string[]
 };
 
 export type TabletopContextType = {
@@ -27,6 +28,8 @@ export type TabletopContextType = {
   setActiveColor: (color: string | null) => void;
   activeTool: ActiveTool;
   setActiveTool: (tool: ActiveTool) => void;
+  activeFogGroup: number;
+  setActiveFogGroup: (group: number) => void;
   isSpacePressed: boolean;
   updateCharacter: (id: string, updates: Partial<Character>) => void;
   updateMapObject: (id: string, updates: Partial<MapObject>) => void;
@@ -36,9 +39,15 @@ export type TabletopContextType = {
   clearMapObjects: () => void;
   clearGridMarkings: () => void;
   toggleGridMarking: (x: number, y: number, color: string) => void;
+  setGridMarking: (x: number, y: number, color: string) => void;
   addArrow: (x1: number, y1: number, x2: number, y2: number, color: string) => void;
   removeArrow: (id: string) => void;
   clearArrows: () => void;
+  toggleFog: (x: number, y: number) => void;
+  setFogRange: (x1: number, y1: number, x2: number, y2: number) => void;
+  removeFogRange: (x1: number, y1: number, x2: number, y2: number) => void;
+  clearFog: () => void;
+  clearFogGroup: (group: number) => void;
 };
 
 const TabletopContext = createContext<TabletopContextType | undefined>(undefined);
@@ -51,6 +60,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
   const [selectedMapObjectId, setSelectedMapObjectId] = useState<string | null>(null);
   const [activeColor, setActiveColor] = useState<string | null>('#ffff00');
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
+  const [activeFogGroup, setActiveFogGroup] = useState<number>(1);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
 
   // Load from persistence
@@ -58,10 +68,11 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
     loadStateFromDB()
       .then((saved) => {
         if (saved) {
+          const s = saved as TabletopState;
           setState(() => ({
             ...initialState,
-            ...(typeof saved === 'object' ? saved : {}),
-            characters: (saved as TabletopState)?.characters?.map(c => ({
+            ...s,
+            characters: s?.characters?.map(c => ({
               ...c,
               vigor: c.vigor ?? 0,
               maxVigor: c.maxVigor ?? 0,
@@ -70,9 +81,10 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
               maxMana: c.maxMana ?? 0,
               isOnMap: c.isOnMap ?? true,
             })) || [],
-            mapObjects: (saved as TabletopState)?.mapObjects || [],
-            gridMarkings: (saved as TabletopState)?.gridMarkings || {},
-            mapArrows: (saved as TabletopState)?.mapArrows || [],
+            mapObjects: s?.mapObjects || [],
+            gridMarkings: s?.gridMarkings || {},
+            mapArrows: s?.mapArrows || [],
+            fogOfWar: Array.isArray(s?.fogOfWar) ? { 1: s.fogOfWar } : (s?.fogOfWar || {}),
           }));
         }
         setIsLoaded(true);
@@ -83,7 +95,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  // Space bar for legacy support (not used for pan anymore — pan is a tool)
+  // Space bar for legacy support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { if (e.code === 'Space') setIsSpacePressed(true); };
     const handleKeyUp   = (e: KeyboardEvent) => { if (e.code === 'Space') setIsSpacePressed(false); };
@@ -118,15 +130,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
 
   const addMapObject = (imageUrl: string, width: number, height: number) => {
     const id = Math.random().toString(36).substr(2, 9);
-    const newObj: MapObject = {
-      id,
-      imageUrl,
-      position: { x: 5, y: 5 },
-      width,
-      height,
-      rotation: 0,
-      size: 1
-    };
+    const newObj: MapObject = { id, imageUrl, position: { x: 5, y: 5 }, width, height, rotation: 0, size: 1 };
     setState(prev => ({ ...prev, mapObjects: [...prev.mapObjects, newObj] }));
     setSelectedMapObjectId(id);
   };
@@ -148,6 +152,11 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const setGridMarking = (x: number, y: number, color: string) => {
+    const key = `${x},${y}`;
+    setState(prev => ({ ...prev, gridMarkings: { ...prev.gridMarkings, [key]: color } }));
+  };
+
   const addArrow = (x1: number, y1: number, x2: number, y2: number, color: string) => {
     const id = Math.random().toString(36).substr(2, 9);
     const arrow: MapArrow = { id, x1, y1, x2, y2, color };
@@ -159,6 +168,67 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
 
   const clearArrows = () => setState(prev => ({ ...prev, mapArrows: [] }));
 
+  const toggleFog = (x: number, y: number) => {
+    const key = `${x},${y}`;
+    setState(prev => {
+      const currentGroups = { ...prev.fogOfWar };
+      const groupSquares = currentGroups[activeFogGroup] || [];
+      const isFoggy = groupSquares.includes(key);
+      if (isFoggy) currentGroups[activeFogGroup] = groupSquares.filter(f => f !== key);
+      else currentGroups[activeFogGroup] = [...groupSquares, key];
+      return { ...prev, fogOfWar: currentGroups };
+    });
+  };
+
+  const setFogRange = (x1: number, y1: number, x2: number, y2: number) => {
+    setState(prev => {
+      const currentGroups = { ...prev.fogOfWar };
+      const set = new Set(currentGroups[activeFogGroup] || []);
+      const startX = Math.min(x1, x2);
+      const endX = Math.max(x1, x2);
+      const startY = Math.min(y1, y2);
+      const endY = Math.max(y1, y2);
+      for (let x = startX; x <= endX; x++) {
+        for (let y = startY; y <= endY; y++) {
+          set.add(`${x},${y}`);
+        }
+      }
+      currentGroups[activeFogGroup] = Array.from(set);
+      return { ...prev, fogOfWar: currentGroups };
+    });
+  };
+
+  const removeFogRange = (x1: number, y1: number, x2: number, y2: number) => {
+    setState(prev => {
+      const currentGroups = { ...prev.fogOfWar };
+      const startX = Math.min(x1, x2);
+      const endX = Math.max(x1, x2);
+      const startY = Math.min(y1, y2);
+      const endY = Math.max(y1, y2);
+      Object.keys(currentGroups).forEach(groupId => {
+          const gid = Number(groupId);
+          const set = new Set(currentGroups[gid] || []);
+          for (let x = startX; x <= endX; x++) {
+            for (let y = startY; y <= endY; y++) {
+              set.delete(`${x},${y}`);
+            }
+          }
+          currentGroups[gid] = Array.from(set);
+      });
+      return { ...prev, fogOfWar: currentGroups };
+    });
+  };
+
+  const clearFog = () => setState(prev => ({ ...prev, fogOfWar: {} }));
+
+  const clearFogGroup = (gid: number) => {
+      setState(prev => {
+          const next = { ...prev.fogOfWar };
+          delete next[gid];
+          return { ...prev, fogOfWar: next };
+      });
+  };
+
   return (
     <TabletopContext.Provider
       value={{
@@ -167,11 +237,13 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         selectedMapObjectId, setSelectedMapObjectId,
         activeColor, setActiveColor,
         activeTool, setActiveTool,
+        activeFogGroup, setActiveFogGroup,
         isSpacePressed,
         updateCharacter, deleteCharacter,
         updateMapObject, deleteMapObject, addMapObject, clearMapObjects,
-        clearGridMarkings, toggleGridMarking,
+        clearGridMarkings, toggleGridMarking, setGridMarking,
         addArrow, removeArrow, clearArrows,
+        toggleFog, setFogRange, removeFogRange, clearFog, clearFogGroup,
       }}
     >
       {children}
@@ -179,7 +251,6 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useTabletop = () => {
   const context = useContext(TabletopContext);
   if (!context) throw new Error('useTabletop must be used within TabletopProvider');

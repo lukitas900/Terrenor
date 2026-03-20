@@ -44,6 +44,7 @@ export type TabletopState = {
   mapObjects: MapObject[];
   gridMarkings: Record<string, string>;
   mapArrows: MapArrow[];
+  fogOfWar: Record<number, string[]>; // Map group ID (1-8) to foggy squares
 };
 
 export type MapArrow = {
