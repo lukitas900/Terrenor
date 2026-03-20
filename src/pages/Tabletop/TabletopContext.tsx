@@ -64,6 +64,8 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
               vigor: c.vigor ?? 0,
               maxVigor: c.maxVigor ?? 0,
               isVigorEnabled: c.isVigorEnabled ?? false,
+              mana: c.mana ?? 0,
+              maxMana: c.maxMana ?? 0,
               isOnMap: c.isOnMap ?? true,
             })) || [],
             mapObjects: (saved as TabletopState)?.mapObjects || [],

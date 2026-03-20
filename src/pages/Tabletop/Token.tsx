@@ -194,6 +194,31 @@ export const Token = ({ character }: TokenProps) => {
         />
       </div>
 
+      {/* Mana Bar */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: hpBarTop + 7,
+          left: 0,
+          right: 0,
+          height: 5,
+          zIndex: 60,
+          background: 'rgba(0,0,50,0.85)',
+          border: '1px solid rgba(0,0,0,0.7)',
+          borderRadius: 3,
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${Math.max(0, Math.min(100, (character.mana / (character.maxMana || 1)) * 100))}%`,
+            background: '#3b82f6',
+            transition: 'width 0.3s',
+          }}
+        />
+      </div>
+
 
 
       {/* Name */}

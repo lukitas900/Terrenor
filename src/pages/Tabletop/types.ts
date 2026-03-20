@@ -20,6 +20,8 @@ export type Character = {
   vigor: number;
   maxVigor: number;
   isVigorEnabled: boolean;
+  mana: number;
+  maxMana: number;
   inventory: InventoryItem[];
   isOnMap?: boolean;
 };
