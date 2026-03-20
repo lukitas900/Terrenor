@@ -32,6 +32,7 @@ export type TabletopContextType = {
   updateMapObject: (id: string, updates: Partial<MapObject>) => void;
   deleteCharacter: (id: string) => void;
   deleteMapObject: (id: string) => void;
+  addMapObject: (imageUrl: string, width: number, height: number) => void;
   clearGridMarkings: () => void;
   toggleGridMarking: (x: number, y: number, color: string) => void;
   addArrow: (x1: number, y1: number, x2: number, y2: number, color: string) => void;
@@ -114,6 +115,20 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
     if (selectedMapObjectId === id) setSelectedMapObjectId(null);
   };
 
+  const addMapObject = (imageUrl: string, width: number, height: number) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const newObj: MapObject = {
+      id,
+      imageUrl,
+      position: { x: 5, y: 5 },
+      width,
+      height,
+      rotation: 0
+    };
+    setState(prev => ({ ...prev, mapObjects: [...prev.mapObjects, newObj] }));
+    setSelectedMapObjectId(id);
+  };
+
   const clearGridMarkings = () => setState(prev => ({ ...prev, gridMarkings: {} }));
 
   const toggleGridMarking = (x: number, y: number, color: string) => {
@@ -147,7 +162,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         activeTool, setActiveTool,
         isSpacePressed,
         updateCharacter, deleteCharacter,
-        updateMapObject, deleteMapObject,
+        updateMapObject, deleteMapObject, addMapObject,
         clearGridMarkings, toggleGridMarking,
         addArrow, removeArrow, clearArrows,
       }}

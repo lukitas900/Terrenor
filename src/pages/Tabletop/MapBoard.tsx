@@ -305,7 +305,7 @@ export const MapBoard = () => {
         {Object.entries(state.gridMarkings || {}).map(([key, color]) => {
           const [x, y] = key.split(',').map(Number);
           return (
-            <div key={key} className="absolute pointer-events-none opacity-55 mix-blend-screen"
+            <div key={key} className="absolute pointer-events-none opacity-40"
               style={{ top: y * SQUARE_SIZE, left: x * SQUARE_SIZE, width: SQUARE_SIZE, height: SQUARE_SIZE, backgroundColor: color, zIndex: 5 }} />
           );
         })}

@@ -87,24 +87,31 @@ export const RightSidebar = () => {
 const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
   const { setState } = useTabletop();
   const [tokenName, setTokenName] = useState('');
-  const [tokenDataUrl, setTokenDataUrl] = useState<string>('');
+  const [tokenDataUrls, setTokenDataUrls] = useState<string[]>([]);
   const [tokenSize, setTokenSize] = useState<number>(1);
 
   const handleCharacterUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setTokenDataUrl(reader.result as string);
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => setTokenDataUrls(prev => [...prev, reader.result as string]);
+        reader.readAsDataURL(file);
+      });
     }
   };
 
+  const removeImage = (index: number) => {
+    setTokenDataUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddCharacter = () => {
-    if (tokenDataUrl && tokenName) {
+    if (tokenDataUrls.length > 0 && tokenName) {
       const newChar: Character = {
         id: Math.random().toString(36).substr(2, 9),
         name: tokenName,
-        imageUrl: tokenDataUrl,
+        imageUrl: tokenDataUrls[0],
+        alternativeImages: tokenDataUrls,
         position: { x: Math.floor(GRID_WIDTH / 2) - 1, y: Math.floor(GRID_HEIGHT / 2) - 1 },
         size: tokenSize as never,
         rotation: 0,
@@ -145,18 +152,29 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Visual do Token</label>
-            <div className="flex gap-4 items-center">
-              <label className="flex-1 text-center bg-[#2d1b4e]/30 hover:bg-[#9d4edd]/20 border border-dashed border-[#2d1b4e] hover:border-[#9d4edd] text-white py-8 rounded-lg cursor-pointer transition-all flex flex-col items-center justify-center gap-2">
-                <Plus size={24} className="opacity-40" />
-                <span className="text-xs uppercase font-bold tracking-tighter opacity-70">
-                  {tokenDataUrl ? "Trocar Imagem" : "Carregar PNG/JPG"}
+            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Versões do Visual (PNGs)</label>
+            <div className="space-y-3">
+              <label className="flex items-center justify-center w-full bg-[#2d1b4e]/30 hover:bg-[#9d4edd]/20 border border-dashed border-[#2d1b4e] hover:border-[#9d4edd] text-white py-4 rounded-lg cursor-pointer transition-all flex flex-col items-center justify-center gap-1">
+                <Plus size={20} className="opacity-40" />
+                <span className="text-[10px] uppercase font-bold tracking-tight opacity-70">
+                   Carregar Versões
                 </span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleCharacterUpload} />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleCharacterUpload} />
               </label>
-              {tokenDataUrl && (
-                <div className="w-24 h-24 bg-black/40 rounded-lg border border-[#2d1b4e] p-2 flex items-center justify-center">
-                  <img src={tokenDataUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+
+              {tokenDataUrls.length > 0 && (
+                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1 scrollbar-hide">
+                  {tokenDataUrls.map((url, i) => (
+                    <div key={i} className="relative group w-16 h-16 bg-black/40 rounded border border-[#2d1b4e] p-1">
+                      <img src={url} alt="Versão" className="w-full h-full object-contain" />
+                      <button 
+                        onClick={() => removeImage(i)}
+                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -179,7 +197,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
 
           <button 
             onClick={handleAddCharacter}
-            disabled={!tokenName || !tokenDataUrl}
+            disabled={!tokenName || tokenDataUrls.length === 0}
             className="w-full bg-[#9d4edd] hover:bg-purple-500 disabled:opacity-30 disabled:cursor-not-allowed text-white py-4 rounded-lg transition-all font-bold text-lg mt-2 shadow-[0_0_20px_rgba(157,78,221,0.2)]"
           >
             Adicionar ao Tabuleiro
@@ -286,14 +304,53 @@ const CharacterDetails = ({ character }: { character: Character }) => {
     setState(prev => ({ ...prev, characters: [...prev.characters, newChar] }));
   };
 
+
+
+  const handleAddVersion = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const newUrl = reader.result as string;
+        const currentAlts = character.alternativeImages || [character.imageUrl];
+        updateCharacter(character.id, { 
+          alternativeImages: [...currentAlts, newUrl],
+          imageUrl: newUrl // Switch to new version immediately
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="space-y-3">
       {/* Header compact */}
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-bold text-white text-base truncate">{character.name}</h3>
-        <div className="flex gap-1">
-          <button onClick={handleDuplicate} className="p-1 text-blue-400 hover:bg-blue-500/10 rounded"><Copy size={14} /></button>
-          <button onClick={() => deleteCharacter(character.id)} className="p-1 text-red-400 hover:bg-red-500/10 rounded"><Trash2 size={14} /></button>
+      <div className="flex items-center justify-between gap-2 border-b border-white/5 pb-2">
+         <div className="flex-1 min-w-0">
+           <h3 className="font-bold text-white text-base truncate">{character.name}</h3>
+           <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+             {character.alternativeImages && character.alternativeImages.map((url, i) => (
+               <button 
+                 key={i}
+                 onClick={() => updateCharacter(character.id, { imageUrl: url })}
+                 className={`w-6 h-6 flex items-center justify-center text-[10px] font-bold rounded border transition-all ${
+                   character.imageUrl === url 
+                     ? 'bg-[#9d4edd] border-[#9d4edd] text-white shadow-[0_0_8px_#9d4edd60]' 
+                     : 'bg-white/5 border-white/10 text-gray-500 hover:text-white hover:border-[#9d4edd]/40'
+                 }`}
+               >
+                 {i + 1}
+               </button>
+             ))}
+             <label className="text-[9px] uppercase font-bold text-gray-400 hover:text-[#9d4edd] transition-colors cursor-pointer bg-white/5 hover:bg-white/10 px-1.5 py-1 rounded border border-white/5 flex items-center gap-1 h-6">
+               <Plus size={10} /> Versão
+               <input type="file" accept="image/*" className="hidden" onChange={handleAddVersion} />
+             </label>
+           </div>
+         </div>
+         <div className="flex gap-1 items-start">
+          <button onClick={handleDuplicate} className="p-1 text-blue-400 hover:bg-blue-500/10 rounded" title="Duplicar"><Copy size={14} /></button>
+          <button onClick={() => deleteCharacter(character.id)} className="p-1 text-red-400 hover:bg-red-500/10 rounded" title="Excluir"><Trash2 size={14} /></button>
           <button 
             onClick={() => updateCharacter(character.id, { isOnMap: !character.isOnMap })}
             className={`p-1 rounded ${character.isOnMap ? 'text-orange-400 hover:bg-orange-500/10' : 'text-green-400 hover:bg-green-500/10'}`}

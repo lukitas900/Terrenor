@@ -24,6 +24,7 @@ export type Character = {
   maxMana: number;
   inventory: InventoryItem[];
   isOnMap?: boolean;
+  alternativeImages?: string[]; // New: list of alternative looks
 };
 
 export type MapObject = {

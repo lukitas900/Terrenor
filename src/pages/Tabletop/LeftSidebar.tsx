@@ -4,12 +4,15 @@ import type { ActiveTool } from './TabletopContext';
 import { Image, Brush, Trash2, Hand, Dices, ChevronRight } from 'lucide-react';
 
 const COLORS = [
-  { name: 'Amarelo', value: '#ffff00' },
-  { name: 'Verde',   value: '#00ff00' },
-  { name: 'Azul',    value: '#0000ff' },
-  { name: 'Vermelho',value: '#ff0000' },
-  { name: 'Branco',  value: '#ffffff' },
-  { name: 'Preto',   value: '#000000' },
+  { name: 'Amarelo',  value: '#ffff00' },
+  { name: 'Verde',    value: '#00ff00' },
+  { name: 'Azul',     value: '#0000ff' },
+  { name: 'Vermelho', value: '#ff0000' },
+  { name: 'Laranja',  value: '#ffa500' },
+  { name: 'Rosa',     value: '#ff00ff' },
+  { name: 'Roxo',     value: '#a020f0' },
+  { name: 'Branco',   value: '#ffffff' },
+  { name: 'Preto',    value: '#000000' },
 ];
 
 const DICE_SIDES = [4, 6, 8, 10, 12, 20, 100];
@@ -37,6 +40,7 @@ export const LeftSidebar = () => {
     activeColor, setActiveColor,
     activeTool, setActiveTool,
     clearGridMarkings, clearArrows,
+    addMapObject,
   } = useTabletop();
 
   // Dice roller state
@@ -96,7 +100,7 @@ export const LeftSidebar = () => {
                   key={c.value}
                   onClick={() => setActiveColor(c.value)}
                   title={c.name}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${activeColor === c.value ? 'scale-110 border-blue-400' : 'border-black/50'}`}
+                  className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${activeColor === c.value ? 'scale-110 border-purple-400 shadow-[0_0_10px_#9d4edd60]' : 'border-white/10 hover:border-white/30'}`}
                   style={{ backgroundColor: c.value }}
                 />
               ))}
@@ -131,6 +135,37 @@ export const LeftSidebar = () => {
         <button onClick={clearArrows} className="flex items-center gap-2 text-orange-400 hover:text-orange-300 text-xs border border-orange-900/40 hover:border-orange-700 px-3 py-2 rounded w-full transition-colors">
           <Trash2 size={12} /> Apagar Setas
         </button>
+      </div>
+
+      <hr className="border-[#2d1b4e]/30" />
+      
+      {/* ── POÇAS / EFEITOS ── */}
+      <div className="space-y-3">
+        <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Efeitos de Terreno (Poças)</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { name: 'Sangue', color: '#880000', label: 'Sangue' },
+            { name: 'Trevas', color: '#111111', label: 'Trevas' },
+            { name: 'Veneno', color: '#006600', label: 'Veneno' },
+            { name: 'Gelo',   color: '#aaaaff', label: 'Gelo' },
+          ].map(p => (
+            <button
+              key={p.name}
+              onClick={() => {
+                const svg = `data:image/svg+xml;utf8,${encodeURIComponent(`
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <path fill="${p.color}" opacity="0.6" d="M30,20 C10,35 5,65 25,85 C45,105 85,95 90,70 C95,45 75,15 50,10 C40,8 35,15 30,20 Z" />
+                  </svg>
+                `)}`;
+                addMapObject(svg, 2, 2);
+              }}
+              className="flex items-center justify-center gap-2 bg-black/30 border border-[#2d1b4e] hover:border-[#9d4edd] py-2 rounded text-[10px] font-bold uppercase transition-all"
+            >
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }} />
+              {p.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
