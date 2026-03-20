@@ -9,17 +9,21 @@ type ScenarioObjectProps = {
 };
 
 export const ScenarioObject = ({ object }: ScenarioObjectProps) => {
-  const { setSelectedMapObjectId, selectedMapObjectId, updateMapObject, deleteMapObject, isSpacePressed } = useTabletop();
+  const { setSelectedMapObjectId, selectedMapObjectId, updateMapObject, deleteMapObject, isSpacePressed, activeTool } = useTabletop();
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const isSelected = selectedMapObjectId === object.id;
 
   // Determine actual rendered position based on whether it's dragging
-  const renderedX = (isDragging ? dragOffset.x : object.position.x) * SQUARE_SIZE;
-  const renderedY = (isDragging ? dragOffset.y : object.position.y) * SQUARE_SIZE;
-  const widthPx = object.width * SQUARE_SIZE;
-  const heightPx = object.height * SQUARE_SIZE;
+  // Better yet: if object.size exists, it overrides width/height mapping to grid cells
+  const actualWidth  = object.size ? object.size : object.width;
+  const actualHeight = object.size ? object.size : object.height;
+  
+  const renderedX = (isDragging ? dragOffset.x : object.position.x) * SQUARE_SIZE - ((actualWidth - 1) * SQUARE_SIZE) / 2;
+  const renderedY = (isDragging ? dragOffset.y : object.position.y) * SQUARE_SIZE - ((actualHeight - 1) * SQUARE_SIZE) / 2;
+  const widthPx = actualWidth * SQUARE_SIZE;
+  const heightPx = actualHeight * SQUARE_SIZE;
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Avoid triggering map click
@@ -91,7 +95,9 @@ export const ScenarioObject = ({ object }: ScenarioObjectProps) => {
     <div
       onPointerDown={handlePointerDown}
       onContextMenu={handleContextMenu}
-      className={`absolute top-0 left-0 cursor-pointer select-none group pointer-events-auto ${
+      className={`absolute top-0 left-0 cursor-pointer select-none group ${
+        activeTool === 'select' ? 'pointer-events-auto' : 'pointer-events-none'
+      } ${
         isDragging ? 'z-40 shadow-xl opacity-90' : 'z-10'
       } ${isSelected && !isDragging ? 'ring-2 ring-blue-500' : ''}`}
       style={{
@@ -120,7 +126,8 @@ export const ScenarioObject = ({ object }: ScenarioObjectProps) => {
             e.stopPropagation();
             deleteMapObject(object.id);
           }}
-          className="absolute -top-4 -right-4 bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg z-50 transition-all hover:scale-110 active:scale-90"
+          title="Remover"
         >
           ×
         </button>

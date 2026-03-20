@@ -39,7 +39,7 @@ export const LeftSidebar = () => {
     state, setState,
     activeColor, setActiveColor,
     activeTool, setActiveTool,
-    clearGridMarkings, clearArrows,
+    clearGridMarkings, clearArrows, clearMapObjects,
     addMapObject,
   } = useTabletop();
 
@@ -135,6 +135,9 @@ export const LeftSidebar = () => {
         <button onClick={clearArrows} className="flex items-center gap-2 text-orange-400 hover:text-orange-300 text-xs border border-orange-900/40 hover:border-orange-700 px-3 py-2 rounded w-full transition-colors">
           <Trash2 size={12} /> Apagar Setas
         </button>
+        <button onClick={clearMapObjects} className="flex items-center gap-2 text-red-500 hover:text-red-400 text-xs border border-red-900/40 hover:border-red-700 px-3 py-2 rounded w-full transition-colors font-bold">
+          <Trash2 size={12} /> Apagar Poças
+        </button>
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
@@ -144,24 +147,33 @@ export const LeftSidebar = () => {
         <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Efeitos de Terreno (Poças)</h3>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { name: 'Sangue', color: '#880000', label: 'Sangue' },
-            { name: 'Trevas', color: '#111111', label: 'Trevas' },
-            { name: 'Veneno', color: '#006600', label: 'Veneno' },
-            { name: 'Gelo',   color: '#aaaaff', label: 'Gelo' },
+            { name: 'Sangue', color: '#880000' },
+            { name: 'Trevas', color: '#111111' },
+            { name: 'Veneno', color: '#006600' },
+            { name: 'Gelo',   color: '#aaaaff' },
+            { name: 'Caixa',  image: '/items/crate.png' },
           ].map(p => (
             <button
               key={p.name}
               onClick={() => {
-                const svg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <path fill="${p.color}" opacity="0.6" d="M30,20 C10,35 5,65 25,85 C45,105 85,95 90,70 C95,45 75,15 50,10 C40,8 35,15 30,20 Z" />
-                  </svg>
-                `)}`;
-                addMapObject(svg, 2, 2);
+                if ('color' in p) {
+                    const svg = `data:image/svg+xml;utf8,${encodeURIComponent(`
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <path fill="${p.color}" opacity="0.6" d="M25,45 C10,60 15,85 40,90 C65,95 90,85 90,60 C90,35 70,10 45,15 C30,18 40,30 25,45 Z" />
+                      </svg>
+                    `)}`;
+                    addMapObject(svg, 1, 1);
+                } else if ('image' in p) {
+                    addMapObject(p.image!, 1, 1);
+                }
               }}
               className="flex items-center justify-center gap-2 bg-black/30 border border-[#2d1b4e] hover:border-[#9d4edd] py-2 rounded text-[10px] font-bold uppercase transition-all"
             >
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }} />
+              {'color' in p ? (
+                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }} />
+              ) : (
+                 <img src={p.image} className="w-3 h-3 object-contain" alt="" />
+              )}
               {p.name}
             </button>
           ))}

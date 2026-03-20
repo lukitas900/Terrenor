@@ -33,6 +33,7 @@ export type TabletopContextType = {
   deleteCharacter: (id: string) => void;
   deleteMapObject: (id: string) => void;
   addMapObject: (imageUrl: string, width: number, height: number) => void;
+  clearMapObjects: () => void;
   clearGridMarkings: () => void;
   toggleGridMarking: (x: number, y: number, color: string) => void;
   addArrow: (x1: number, y1: number, x2: number, y2: number, color: string) => void;
@@ -123,10 +124,16 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
       position: { x: 5, y: 5 },
       width,
       height,
-      rotation: 0
+      rotation: 0,
+      size: 1
     };
     setState(prev => ({ ...prev, mapObjects: [...prev.mapObjects, newObj] }));
     setSelectedMapObjectId(id);
+  };
+
+  const clearMapObjects = () => {
+    setState(prev => ({ ...prev, mapObjects: [] }));
+    setSelectedMapObjectId(null);
   };
 
   const clearGridMarkings = () => setState(prev => ({ ...prev, gridMarkings: {} }));
@@ -162,7 +169,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         activeTool, setActiveTool,
         isSpacePressed,
         updateCharacter, deleteCharacter,
-        updateMapObject, deleteMapObject, addMapObject,
+        updateMapObject, deleteMapObject, addMapObject, clearMapObjects,
         clearGridMarkings, toggleGridMarking,
         addArrow, removeArrow, clearArrows,
       }}

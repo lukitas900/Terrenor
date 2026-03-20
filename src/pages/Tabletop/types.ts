@@ -34,6 +34,7 @@ export type MapObject = {
   width: number;
   height: number;
   rotation: number;
+  size?: TokenSize;
 };
 
 export type TabletopState = {

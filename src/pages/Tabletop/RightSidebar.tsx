@@ -11,12 +11,14 @@ export const RightSidebar = () => {
     state, 
     selectedCharacterId,
     setSelectedCharacterId,
-    updateCharacter
+    selectedMapObjectId,
+    updateCharacter,
   } = useTabletop();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedCharacter = state.characters.find(c => c.id === selectedCharacterId);
+  const selectedMapObject = state.mapObjects.find(o => o.id === selectedMapObjectId);
 
   return (
     <div className="w-[20rem] min-w-[20rem] max-w-[20rem] shrink-0 h-full bg-[#111116] border-l border-[#2d1b4e]/50 p-4 flex flex-col gap-6 overflow-y-auto overflow-x-hidden text-sm text-gray-300">
@@ -77,6 +79,13 @@ export const RightSidebar = () => {
         <>
           <hr className="border-[#2d1b4e]/30" />
           <CharacterDetails character={selectedCharacter} />
+        </>
+      )}
+      
+      {selectedMapObject && (
+        <>
+          <hr className="border-[#2d1b4e]/30" />
+          <MapObjectDetails object={selectedMapObject} />
         </>
       )}
 
@@ -490,6 +499,48 @@ const CharacterDetails = ({ character }: { character: Character }) => {
              </button>
            ))}
          </div>
+      </div>
+    </div>
+  );
+};
+
+const MapObjectDetails = ({ object }: { object: any }) => {
+  const { updateMapObject, deleteMapObject } = useTabletop();
+
+  const handleRotate = () => {
+    updateMapObject(object.id, { rotation: (object.rotation + 90) % 360 });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+        <h3 className="font-bold text-white text-base">Efeito de Mapa</h3>
+        <div className="flex gap-1">
+          <button onClick={handleRotate} className="p-1 px-2 text-[10px] font-bold bg-white/5 hover:bg-white/10 text-blue-400 rounded border border-white/10">RODAR</button>
+          <button onClick={() => deleteMapObject(object.id)} className="p-1 text-red-400 hover:bg-red-500/10 rounded"><Trash2 size={16} /></button>
+        </div>
+      </div>
+
+      <div className="flex justify-center bg-black/40 p-4 rounded-lg border border-[#2d1b4e]">
+        <img src={object.imageUrl} alt="" className="max-h-24 object-contain" />
+      </div>
+
+      {/* Size logic */}
+      <div className="space-y-2">
+        <label className="text-[9px] font-semibold text-purple-300 uppercase tracking-wider">Tamanho (Escala)</label>
+        <div className="flex justify-between bg-black/20 p-1 rounded-lg border border-[#2d1b4e]/50">
+          {SIZES.map(s => (
+            <button
+              key={s}
+              onClick={() => updateMapObject(object.id, { size: s as any })}
+              className={`flex-1 py-1 px-2 text-[10px] font-bold rounded transition-all ${
+                (object.size || (object.width === s ? s : 1)) === s ? 'bg-[#9d4edd] text-white' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              {s}x
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
