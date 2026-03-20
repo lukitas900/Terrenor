@@ -1,0 +1,52 @@
+export type Position = { x: number; y: number };
+
+export type TokenSize = 1 | 2 | 3 | 4 | 6;
+
+export type InventoryItem = {
+  id: string;
+  name: string;
+  quantity: number;
+};
+
+export type Character = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  position: Position;
+  size: TokenSize;
+  rotation: number;
+  hp: number;
+  maxHp: number;
+  vigor: number;
+  maxVigor: number;
+  isVigorEnabled: boolean;
+  inventory: InventoryItem[];
+  isOnMap?: boolean;
+};
+
+export type MapObject = {
+  id: string;
+  imageUrl: string;
+  position: Position;
+  width: number;
+  height: number;
+  rotation: number;
+};
+
+export type TabletopState = {
+  backgroundImageUrl: string | null;
+  mapPresetColor?: string;
+  characters: Character[];
+  mapObjects: MapObject[];
+  gridMarkings: Record<string, string>;
+  mapArrows: MapArrow[];
+};
+
+export type MapArrow = {
+  id: string;
+  x1: number;  // start grid col
+  y1: number;  // start grid row
+  x2: number;  // end grid col
+  y2: number;  // end grid row
+  color: string;
+};
