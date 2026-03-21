@@ -61,7 +61,7 @@ export const MapBoard = () => {
   const {
     state, setState, isLoaded,
     activeColor, activeTool,
-    setGridMarking,
+    setGridMarking, toggleGridMarking,
     addArrow, removeArrow,
     setSelectedCharacterId, setSelectedMapObjectId,
     toggleFog, setFogRange, removeFogRange
@@ -244,7 +244,16 @@ export const MapBoard = () => {
     // ── PAINT DRAG ──
     if (activeTool === 'paint' && activeColor) {
       const startCell = clientToGrid(e.clientX, e.clientY);
-      if (startCell) setGridMarking(startCell.gx, startCell.gy, activeColor);
+      if (!startCell) return;
+
+      const key = `${startCell.gx},${startCell.gy}`;
+      if (state.gridMarkings?.[key] === activeColor) {
+        // Se já tiver a mesma cor, apaga e não inicia o arraste de pintura
+        toggleGridMarking(startCell.gx, startCell.gy, activeColor);
+        return;
+      }
+
+      setGridMarking(startCell.gx, startCell.gy, activeColor);
 
       const pointerId = e.pointerId;
       const el = e.currentTarget;

@@ -30,12 +30,14 @@ export type TabletopContextType = {
   setActiveTool: (tool: ActiveTool) => void;
   activeFogGroup: number;
   setActiveFogGroup: (group: number) => void;
+  activePuddleSize: number;
+  setActivePuddleSize: (size: number) => void;
   isSpacePressed: boolean;
   updateCharacter: (id: string, updates: Partial<Character>) => void;
   updateMapObject: (id: string, updates: Partial<MapObject>) => void;
   deleteCharacter: (id: string) => void;
   deleteMapObject: (id: string) => void;
-  addMapObject: (imageUrl: string, width: number, height: number) => void;
+  addMapObject: (imageUrl: string, width: number, height: number, size?: number) => void;
   clearMapObjects: () => void;
   clearGridMarkings: () => void;
   toggleGridMarking: (x: number, y: number, color: string) => void;
@@ -61,6 +63,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
   const [activeColor, setActiveColor] = useState<string | null>('#ffff00');
   const [activeTool, setActiveTool] = useState<ActiveTool>('select');
   const [activeFogGroup, setActiveFogGroup] = useState<number>(1);
+  const [activePuddleSize, setActivePuddleSize] = useState<number>(1);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
 
   // Load from persistence
@@ -128,9 +131,10 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
     if (selectedMapObjectId === id) setSelectedMapObjectId(null);
   };
 
-  const addMapObject = (imageUrl: string, width: number, height: number) => {
+  const addMapObject = (imageUrl: string, width: number, height: number, size?: number) => {
     const id = Math.random().toString(36).substr(2, 9);
-    const newObj: MapObject = { id, imageUrl, position: { x: 5, y: 5 }, width, height, rotation: 0, size: 1 };
+    const newSize = size ?? activePuddleSize;
+    const newObj: MapObject = { id, imageUrl, position: { x: 5, y: 5 }, width, height, rotation: 0, size: newSize };
     setState(prev => ({ ...prev, mapObjects: [...prev.mapObjects, newObj] }));
     setSelectedMapObjectId(id);
   };
@@ -238,6 +242,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         activeColor, setActiveColor,
         activeTool, setActiveTool,
         activeFogGroup, setActiveFogGroup,
+        activePuddleSize, setActivePuddleSize,
         isSpacePressed,
         updateCharacter, deleteCharacter,
         updateMapObject, deleteMapObject, addMapObject, clearMapObjects,

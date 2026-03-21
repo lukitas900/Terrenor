@@ -43,6 +43,8 @@ export const LeftSidebar = () => {
     activeColor, setActiveColor,
     activeTool, setActiveTool,
     activeFogGroup, setActiveFogGroup,
+    activePuddleSize, setActivePuddleSize,
+    selectedMapObjectId, deleteMapObject,
     clearGridMarkings, clearArrows, clearMapObjects,
     addMapObject, clearFog, clearFogGroup,
   } = useTabletop();
@@ -146,9 +148,23 @@ export const LeftSidebar = () => {
 
       <hr className="border-[#2d1b4e]/30" />
 
-      {/* ── EFEITOS DE TERRENO (RESTAURADOS) ── */}
+      {/* ── EFEITOS DE TERRENO ── */}
       <div className="space-y-3">
         <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Efeitos de Terreno</h3>
+        
+        {/* Seleção de Tamanho */}
+        <div className="flex gap-1 mb-2">
+          {[1, 1.5, 2].map(s => (
+            <button
+              key={s}
+              onClick={() => setActivePuddleSize(s)}
+              className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${activePuddleSize === s ? 'bg-purple-600 border-purple-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+            >
+              Tam. {s}
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-2 gap-2">
           {[
             { name: 'Sangue', color: '#880000' },
@@ -178,6 +194,15 @@ export const LeftSidebar = () => {
             </button>
           ))}
         </div>
+
+        {selectedMapObjectId && (
+          <button
+            onClick={() => deleteMapObject(selectedMapObjectId)}
+            className="flex items-center justify-center gap-2 w-full py-2 mt-2 bg-red-900/40 border border-red-500/50 text-red-200 rounded text-[10px] font-bold uppercase transition-all hover:bg-red-900/60 hover:border-red-500"
+          >
+            <Trash2 size={12} /> Remover Poça Selecionada
+          </button>
+        )}
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
@@ -185,9 +210,9 @@ export const LeftSidebar = () => {
       <div className="space-y-2">
         <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Limpar / Revelar</h3>
         <div className="space-y-1 mb-2">
-          {Object.entries(state.fogOfWar || {}).filter(([_, squares]) => squares.length > 0).map(([groupId, squares]) => (
+          {Object.entries(state.fogOfWar || {}).filter(([_, squares]) => (squares as string[]).length > 0).map(([groupId, squares]) => (
             <button key={groupId} onClick={() => clearFogGroup(Number(groupId))} className="flex items-center justify-between text-[10px] text-blue-400 hover:text-blue-300 border border-blue-900/40 hover:bg-blue-900/10 px-2 py-1.5 rounded w-full transition-all group">
-               <span className="flex items-center gap-2"><Eye size={10} /> Revelar Grupo {groupId} ({squares.length})</span>
+               <span className="flex items-center gap-2"><Eye size={10} /> Revelar Grupo {groupId} ({(squares as string[]).length})</span>
                <Trash2 size={10} className="opacity-0 group-hover:opacity-100" />
             </button>
           ))}

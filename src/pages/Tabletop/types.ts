@@ -1,6 +1,6 @@
 export type Position = { x: number; y: number };
 
-export type TokenSize = 1 | 2 | 3 | 4 | 6;
+export type TokenSize = number; // Allows 1, 1.5, 2, 3, etc.
 
 export type InventoryItem = {
   id: string;

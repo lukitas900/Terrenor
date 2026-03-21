@@ -4,7 +4,7 @@ import { Plus, Trash2, X, Sword, Copy } from 'lucide-react';
 import type { Character, InventoryItem } from './types';
 import { GRID_WIDTH, GRID_HEIGHT } from './constants';
 
-const SIZES = [1, 2, 3, 4, 6] as const;
+const SIZES = [1, 1.5, 2, 3, 4, 6];
 
 export const RightSidebar = () => {
   const { 
@@ -122,7 +122,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
         imageUrl: tokenDataUrls[0],
         alternativeImages: tokenDataUrls,
         position: { x: Math.floor(GRID_WIDTH / 2) - 1, y: Math.floor(GRID_HEIGHT / 2) - 1 },
-        size: tokenSize as never,
+        size: tokenSize,
         rotation: 0,
         hp: 100,
         maxHp: 100,
@@ -496,15 +496,15 @@ const CharacterDetails = ({ character }: { character: Character }) => {
       <div className="flex items-center gap-2 pt-1">
          <span className="text-[9px] text-gray-500 uppercase font-bold shrink-0">Zoom:</span>
          <div className="flex gap-1 overflow-x-auto pb-1">
-           {SIZES.map(s => (
-             <button
-               key={s}
-               onClick={() => updateCharacter(character.id, { size: s as never })}
-               className={`w-6 h-5 text-[10px] rounded border ${character.size === s ? 'bg-purple-600 border-purple-400 text-white' : 'bg-black/40 border-white/10 text-gray-500'} transition-all`}
-             >
-               {s}x
-             </button>
-           ))}
+            {SIZES.map(s => (
+              <button
+                key={s}
+                onClick={() => updateCharacter(character.id, { size: s })}
+                className={`w-10 h-6 text-[10px] rounded border ${character.size === s ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_8px_rgba(157,78,221,0.4)]' : 'bg-black/40 border-white/10 text-gray-500 hover:text-gray-300 hover:border-white/20'} transition-all`}
+              >
+                {s}x
+              </button>
+            ))}
          </div>
       </div>
     </div>
