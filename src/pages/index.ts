@@ -11,5 +11,6 @@ export { ItemDetail } from './ItemDetail';
 export { Map } from './Map';
 export { KingdomDetail } from './KingdomDetail';
 export { Tales } from './Tales';
+export { CharacterDetail } from './CharacterDetail';
 export { TabletopPage as Tabletop } from './Tabletop';
 

@@ -104,5 +104,60 @@ export const characters = [
         title: 'O Pesquisador de Eldermar',
         description: 'Um mago recluso, vive devotado em Eldemar, onde conduz pesquisas sobre a origem da magia. Descobridor de magias esquecidas, é considerado um visionário — ou um louco.',
         image: '/characters/semImagem.png',
+        type: 'notavel'
+    },
+    {
+        id: 'rainha-mikalia',
+        name: 'Rainha Mikalia',
+        title: 'Exploradora das Areias',
+        description: 'Lendária exploradora que desvendou os segredos de templos esquecidos sob as dunas.',
+        fullDescription: 'A princípio apenas uma corajosa exploradora das areias, Mikalia fez sua lenda desvendando templos abandonados perdidos sob as dunas incansáveis do deserto profundo. Com o passar do tempo, o vasto número de comerciantes, forasteiros e aventureiros que seguiam suas rotas começou a se aglomerar em torno de seus acampamentos seguros em busca de abrigo e negociações.\n\nSob a liderança firme e inigualável habilidade de sobrevivência de Mikalia, esse assentamento improvisado floresceu, transformando-se de um punhado de tendas em uma gigantesca e respeitada cidade erguida no centro do deserto.\n\nHoje coroada como Rainha, ela transcendeu a fama original como desbravadora, conquistando o respeito absoluto de seu povo e de reinos distantes através da coragem, hospitalidade e uma liderança implacável forjada nas areias.',
+        image: '/characters/semImagem.png',
+        type: 'notavel'
+    },
+    {
+        id: 'thamior',
+        name: 'Thamior',
+        title: 'O Tecelão de Runas',
+        description: 'Artesão lendário de Valenor, cujas oficinas deram vida a armas e joias de poder imensurável.',
+        fullDescription: 'Thamior, o Tecelão de Runas – artesão lendário de Valenor, suas oficinas já produziram armas e joias mágicas. Após sua morte, sua forja permanece fechada, mas dizem que algumas de suas criações carregam parte de sua alma.',
+        image: '/characters/semImagem.png',
+        type: 'notavel'
+    },
+    {
+        id: 'brakkor',
+        name: 'Brakkor',
+        title: 'O Forjador de Reino',
+        description: 'Guerreiro estratégico que consolidou as fronteiras de Valenor.',
+        fullDescription: 'Brakkor - o Forjador de Reino, forjou seu nome em pequenas guerras decisivas, conflitos que moldaram as fronteiras e garantiram a sobrevivência do reino recém-fundado por seu pai. Não foram batalhas grandiosas, mas vitórias estratégicas que consolidaram seu respeito entre guerreiros e líderes.\n\nAo assumir o trono, já não buscava conquista — buscava permanência. Sob seu reinado, Valenor floresceu. A cidade tornou-se rica, organizada e segura, conhecida por seus mercados abundantes e pela presença de itens raros vindos de terras distantes.\n\nMais do que um guerreiro, Brakkor provou ser um governante firme e calculista. Sua força deixou de estar apenas na lâmina, passando a viver na disciplina de seu povo e na prosperidade de sua cidade.',
+        image: '/characters/brakkor.png',
+        type: 'notavel'
+    },
+    {
+        id: 'vorgrum',
+        name: 'Vorgrum',
+        title: 'O Imortal de Velanthor',
+        description: 'Ascendeu em meio a um ciclo de sangue, consolidando seu domínio em Velanthor através de sua brutalidade.',
+        fullDescription: 'Vorgrum, o Imortal. O atual líder de Velanthor ascendeu em meio a um ciclo interminável de sangue, sucedendo reis que tombaram um após o outro nas guerras que moldaram a cidade. Diferente deles, ele não apenas sobreviveu, mas consolidou seu domínio através de uma brutalidade calculada, eliminando rivais dentro e fora das muralhas.\n\nForjado na Arena de Ferro, onde venceu incontáveis combates, transformou-se no símbolo vivo daquilo que Velanthor acredita, que apenas a força define o direito de governar. Sob seu comando, a cidade tornou-se ainda mais rígida e implacável, com suas forjas sempre ativas e seus guerreiros constantemente testados, enquanto qualquer traço de magia é punido como corrupção.\n\nTemido até pelos próprios orcs, ele não governa apenas como rei, mas como a própria personificação da guerra que sustenta Velanthor.',
+        image: '/characters/vorgrum.png',
+        type: 'notavel'
+    },
+    {
+        id: 'thalorien',
+        name: 'Thalorien',
+        title: 'O Sábio',
+        description: 'Líder élfico de Ravenpeak, conhecido por sua inestimável serenidade e sabedoria.',
+        fullDescription: 'Thalorien é um líder élfico conhecido por sua serenidade e sabedoria, alguém que acredita que a verdadeira força não está na guerra, mas na capacidade de evitá-la. Desde jovem, buscou unir clãs rivais através do diálogo e da compreensão, tornando-se uma figura respeitada não pelo medo, mas pela confiança que inspira.\n\nSob sua liderança, seu povo prospera em equilíbrio com a natureza, mantendo relações pacíficas com outros reinos e resolvendo conflitos antes que se tornem batalhas. Para Thalorien, governar não é dominar, mas preservar a harmonia que sustenta a vida.',
+        image: '/characters/Thalorien.png',
+        type: 'notavel'
+    },
+    {
+        id: 'dreadmar',
+        name: 'Dreadmar',
+        title: 'O Eterno',
+        description: 'Soberano absoluto de Fjordhaven, considerado uma encarnação da constância e ordem inquestionáveis.',
+        fullDescription: 'Dreadmar é o soberano absoluto de Fjordhaven, reconhecido por sua autoridade inquestionável. Sua figura é tão antiga quanto a própria cidade, e poucos ousam contestar se ele ainda é o primeiro rei ou um sucessor da mesma linhagem. O povo o reverencia como a encarnação da constância, símbolo de que Fjordhaven nunca cairá.',
+        image: '/characters/Dreadmar.png',
+        type: 'notavel'
     }
 ];

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Scroll, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { characters } from '../data/characters';
-
 
 export function Tales() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,9 +19,10 @@ export function Tales() {
     const mitos = filteredCharacters.filter(char => char.type === 'mito');
 
     const renderCard = (char: typeof characters[0]) => (
-        <div
+        <Link
+            to={`/contos/${char.id}`}
             key={char.id}
-            className="group bg-[#1a0b2e]/50 rounded-xl overflow-hidden border border-[#2d1b4e]/50 transition-all duration-300 hover:border-[#c9a227]/50 hover:shadow-[0_0_30px_rgba(201,162,39,0.2)] relative min-h-[440px] flex flex-col"
+            className="group bg-[#1a0b2e]/50 rounded-xl overflow-hidden border border-[#2d1b4e]/50 transition-all duration-300 hover:border-[#c9a227]/50 hover:shadow-[0_0_30px_rgba(201,162,39,0.2)] relative min-h-[440px] flex flex-col block"
         >
             {char.image && (
                 <div className="absolute inset-0 z-0">
@@ -54,7 +55,7 @@ export function Tales() {
                     </p>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 
     return (

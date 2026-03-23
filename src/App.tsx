@@ -18,7 +18,8 @@ import {
   Map,
   Tabletop,
   KingdomDetail,
-  Tales
+  Tales,
+  CharacterDetail
 } from './pages';
 import './App.css';
 
@@ -58,6 +59,7 @@ function AppContent() {
           <Route path="/mapa" element={<Map />} />
           <Route path="/reinos/:id" element={<KingdomDetail />} />
           <Route path="/contos" element={<Tales />} />
+          <Route path="/contos/:id" element={<CharacterDetail />} />
           <Route path="/tabuleiro" element={<Tabletop />} />
         </Routes>
       </main>
