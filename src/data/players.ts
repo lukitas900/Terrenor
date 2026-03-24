@@ -217,7 +217,7 @@ export const players: Player[] = [
     stats: {
       forca: { value: 6, description: 'E:1 /B:2/N:3-6 /F:7-19 /D:20' },
       destreza: { value: 18, description: 'E:1-6 /B:7-12 /N:13-18 /F:19 /D:20' },
-      vitalidade: 23,
+      vitalidade: 43,
       sorte: { value: 11, description: 'E:1 /B:2-5 /N:6-11 /F:12-19 /D:20' },
       pontaria: { value: 7, description: 'E:1 /B:2/N:3-7 /F:8-19 /D:20' },
       observacao: { value: 6, description: 'E:1 /B:2/N:3-6 /F:7-19 /D:20' },
@@ -288,7 +288,7 @@ export const players: Player[] = [
     stats: {
       forca: { value: 8, description: 'E:1 /B:2/N:3-8 /F:9-19 /D:20' },
       destreza: { value: 14, description: 'E:1-2 /B:3-8 /N:9-14 /F:15-19 /D:20' },
-      vitalidade: 15,
+      vitalidade: 36,
       sorte: { value: 14, description: 'E:1-2 /B:3-8 /N:9-14 /F:15-19 /D:20' },
       pontaria: { value: 16, description: 'E:1-4 /B:5-10 /N:11-16 /F:17-19 /D:20' },
       observacao: { value: 11, description: 'E:1 /B:2-5 /N:6-11 /F:12-19 /D:20' },
