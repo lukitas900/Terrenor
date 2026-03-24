@@ -38,7 +38,7 @@ export function Religions() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 
+          <h1
             className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
             style={{ fontFamily: 'Cinzel Decorative, serif' }}
           >
@@ -54,26 +54,26 @@ export function Religions() {
           {religions.map((religion) => {
             const Icon = religionIcons[religion.id] || BookOpen;
             const color = religionColors[religion.id] || '#9d4edd';
-            
+
             return (
               <div
                 key={religion.id}
                 className="religion-card bg-[#1a0b2e]/50 rounded-2xl border border-[#2d1b4e]/50 overflow-hidden"
               >
                 {/* Header */}
-                <div 
+                <div
                   className="p-6 border-b border-[#2d1b4e]/50"
                   style={{ backgroundColor: `${color}10` }}
                 >
                   <div className="flex items-start gap-4">
-                    <div 
+                    <div
                       className="p-3 rounded-xl shrink-0"
                       style={{ backgroundColor: `${color}20` }}
                     >
                       <Icon className="w-8 h-8" style={{ color }} />
                     </div>
                     <div>
-                      <h2 
+                      <h2
                         className="text-2xl font-bold text-[#e0e0e0] mb-1"
                         style={{ fontFamily: 'Cinzel Decorative, serif' }}
                       >
@@ -99,11 +99,11 @@ export function Religions() {
                     </h3>
                     <ul className="space-y-2">
                       {religion.teachings.slice(0, 3).map((teaching, i) => (
-                        <li 
+                        <li
                           key={i}
                           className="flex items-start gap-2 text-[#e0e0e0]/70 text-sm"
                         >
-                          <span 
+                          <span
                             className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                             style={{ backgroundColor: color }}
                           />
@@ -120,7 +120,7 @@ export function Religions() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {religion.symbols.map((symbol, i) => (
-                        <span 
+                        <span
                           key={i}
                           className="px-3 py-1 bg-[#2d1b4e]/50 rounded-full text-xs text-[#e0e0e0]/70"
                         >
@@ -136,11 +136,11 @@ export function Religions() {
                       Seguidores: {religion.followers.slice(0, 3).join(', ')}...
                     </span>
                     {religion.mainKingdom && (
-                      <span 
+                      <span
                         className="px-2 py-1 rounded text-xs"
-                        style={{ 
+                        style={{
                           backgroundColor: `${color}20`,
-                          color: color 
+                          color: color
                         }}
                       >
                         {religion.mainKingdom}

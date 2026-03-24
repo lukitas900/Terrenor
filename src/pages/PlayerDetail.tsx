@@ -286,10 +286,9 @@ export function PlayerDetail() {
                     <div className="animate-[fadeIn_0.3s_ease]">
                         <div className="bg-[#1a0b2e]/50 rounded-2xl border border-[#2d1b4e]/50 p-6 md:p-10 backdrop-blur-sm">
                             <h2 className="text-2xl font-bold text-[#e0e0e0] mb-1 flex items-center gap-2" style={{ fontFamily: 'Cinzel Decorative, serif' }}>
-                                <Zap className="w-6 h-6 text-[#c9a227]" /> Árvore de Habilidades
+                                <Zap className="w-6 h-6 text-[#c9a227]" /> Habilidades do Personagem
                             </h2>
                             <p className="text-[#e0e0e0]/45 text-sm mb-10">Desenvolvimento do personagem através dos níveis.</p>
-
                             <div className="relative">
                                 <div className="absolute left-[18px] top-0 bottom-0 w-px bg-gradient-to-b from-[#9d4edd]/60 via-[#c9a227]/40 to-[#9d4edd]/10" />
                                 <div className="space-y-4">
@@ -297,7 +296,6 @@ export function PlayerDetail() {
                                         const isBonus = ability.type === 'bonus';
                                         const isPassiva = ability.type === 'passiva';
                                         const levelColor = isBonus ? '#c9a227' : ability.level <= 3 ? '#22c55e' : ability.level <= 6 ? '#c9a227' : '#9d4edd';
-
                                         return (
                                             <div key={ability.name} className="flex gap-5 group">
                                                 <div className="flex-shrink-0 w-9 flex items-start justify-center pt-1">
@@ -309,11 +307,7 @@ export function PlayerDetail() {
                                                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
                                                         <h3 className="font-bold text-sm" style={{ fontFamily: 'Cinzel Decorative, serif', color: isBonus ? '#c9a227' : '#e0e0e0' }}>{ability.name}</h3>
                                                         {!isBonus && (
-                                                            <span className="px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1" style={{ 
-                                                                backgroundColor: isPassiva ? '#3b82f618' : '#facc1518', 
-                                                                color: isPassiva ? '#60a5fa' : '#facc15', 
-                                                                border: `1px solid ${isPassiva ? '#3b82f635' : '#facc1535'}` 
-                                                            }}>
+                                                            <span className="px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1" style={{ backgroundColor: isPassiva ? '#3b82f618' : '#facc1518', color: isPassiva ? '#60a5fa' : '#facc15', border: `1px solid ${isPassiva ? '#3b82f635' : '#facc1535'}` }}>
                                                                 {isPassiva ? <Shield className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
                                                                 {isPassiva ? 'Passiva' : 'Ativa'}
                                                             </span>
