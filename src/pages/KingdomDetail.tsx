@@ -53,7 +53,7 @@ export function KingdomDetail() {
                     ) : (
                         <div className="p-8 pb-4">
                             <h1
-                                className="text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-2"
+                                className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-2"
                                 style={{ fontFamily: 'Cinzel Decorative, serif' }}
                             >
                                 {kingdom.name}

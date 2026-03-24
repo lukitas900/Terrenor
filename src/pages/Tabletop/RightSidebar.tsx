@@ -220,9 +220,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
 const CharacterDetails = ({ character }: { character: Character }) => {
   const { updateCharacter, deleteCharacter, setState } = useTabletop();
   const [dmgInput, setDmgInput] = useState('');
-  const [healInput, setHealInput] = useState('');
   const [manaSpendInput, setManaSpendInput] = useState('');
-  const [manaRestoreInput, setManaRestoreInput] = useState('');
   
   const [inventoryItemName, setInventoryItemName] = useState('');
   const [inventoryItemQty, setInventoryItemQty] = useState('1');
@@ -248,13 +246,13 @@ const CharacterDetails = ({ character }: { character: Character }) => {
   };
 
   const applyHeal = () => {
-    const val = parseInt(healInput || '0');
+    const val = parseInt(dmgInput || '0');
     if (!isNaN(val) && val > 0) {
       const currentHp = character.hp || 0;
       const maxHp = character.maxHp || 100;
       updateCharacter(character.id, { hp: Math.min(maxHp, currentHp + val) });
     }
-    setHealInput('');
+    setDmgInput('');
   };
 
   const spendMana = () => {
@@ -267,13 +265,13 @@ const CharacterDetails = ({ character }: { character: Character }) => {
   };
 
   const restoreMana = () => {
-    const val = parseInt(manaRestoreInput || '0');
+    const val = parseInt(manaSpendInput || '0');
     if (!isNaN(val) && val > 0) {
       const currentMana = character.mana || 0;
       const maxMana = character.maxMana || 100;
       updateCharacter(character.id, { mana: Math.min(maxMana, currentMana + val) });
     }
-    setManaRestoreInput('');
+    setManaSpendInput('');
   };
 
   const addItem = () => {
@@ -395,7 +393,7 @@ const CharacterDetails = ({ character }: { character: Character }) => {
             className="w-16 bg-black/40 border border-[#2d1b4e] rounded px-2 py-1 text-xs outline-none focus:border-red-500/50"
           />
           <button onClick={applyDamage} className="flex-1 bg-red-900/40 hover:bg-red-800/60 text-red-200 text-[10px] font-bold rounded border border-red-700/30 uppercase">Dano</button>
-          <button onClick={() => { setHealInput(dmgInput); applyHeal(); }} className="flex-1 bg-green-900/40 hover:bg-green-800/60 text-green-200 text-[10px] font-bold rounded border border-green-700/30 uppercase">Cura</button>
+          <button onClick={applyHeal} className="flex-1 bg-green-900/40 hover:bg-green-800/60 text-green-200 text-[10px] font-bold rounded border border-green-700/30 uppercase">Cura</button>
           <button 
             onClick={() => updateCharacter(character.id, { isVigorEnabled: !character.isVigorEnabled })}
             className={`px-2 rounded text-[9px] font-bold border transition-all ${character.isVigorEnabled ? 'bg-blue-600 border-blue-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500'}`}
@@ -422,7 +420,7 @@ const CharacterDetails = ({ character }: { character: Character }) => {
             className="w-16 bg-black/40 border border-[#2d1b4e] rounded px-2 py-1 text-xs outline-none focus:border-blue-500/50"
           />
           <button onClick={spendMana} className="flex-1 bg-blue-900/40 hover:bg-blue-800/60 text-blue-200 text-[10px] font-bold rounded border border-blue-700/30 uppercase">Usa</button>
-          <button onClick={() => { setManaRestoreInput(manaSpendInput); restoreMana(); }} className="flex-1 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-200 text-[10px] font-bold rounded border border-indigo-700/30 uppercase">Rest</button>
+          <button onClick={restoreMana} className="flex-1 bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-200 text-[10px] font-bold rounded border border-indigo-700/30 uppercase">Rest</button>
         </div>
       </div>
 

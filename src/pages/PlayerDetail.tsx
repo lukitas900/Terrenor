@@ -94,7 +94,7 @@ export function PlayerDetail() {
 
 
                     <h1
-                        className="text-5xl md:text-7xl font-bold"
+                        className="text-4xl md:text-5xl lg:text-7xl font-bold"
                         style={{
                             fontFamily: 'Cinzel Decorative, serif',
                             color: '#ffffff',
@@ -215,10 +215,10 @@ export function PlayerDetail() {
                     <div className="animate-[fadeIn_0.3s_ease]">
                         <div className="bg-[#1a0b2e]/50 rounded-2xl border border-[#2d1b4e]/50 p-6 md:p-10 backdrop-blur-sm">
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-                                <h2 className="text-3xl font-bold text-[#e0e0e0] flex items-center gap-3" style={{ fontFamily: 'Cinzel Decorative, serif' }}>
-                                    <Scroll className="w-8 h-8 text-[#9d4edd]" /> Ficha de Personagem
+                                <h2 className="text-2xl sm:text-3xl font-bold text-[#e0e0e0] flex items-center gap-3" style={{ fontFamily: 'Cinzel Decorative, serif' }}>
+                                    <Scroll className="w-6 h-6 sm:w-8 sm:h-8 text-[#9d4edd]" /> Ficha de Personagem
                                 </h2>
-                                <div className="flex items-center gap-4 bg-[#2d1b4e]/30 px-6 py-3 rounded-2xl border border-[#9d4edd]/20">
+                                <div className="flex flex-wrap items-center gap-4 bg-[#2d1b4e]/30 px-6 py-3 rounded-2xl border border-[#9d4edd]/20 w-full sm:w-auto">
                                     <div className="flex items-center gap-2">
                                         <Heart className="w-5 h-5 text-red-500" />
                                         <span className="text-xl font-bold text-[#e0e0e0]">{player.stats.vitalidade}</span>

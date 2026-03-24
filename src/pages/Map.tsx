@@ -13,7 +13,7 @@ export function Map() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1
-            className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 gradient-text"
             style={{ fontFamily: 'Cinzel Decorative, serif' }}
           >
             Mapa de Terrenor
@@ -69,7 +69,7 @@ export function Map() {
               </div>
             )}
             <div className="flex-1">
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                 <div>
                   <h2
                     className="text-2xl font-bold text-[#e0e0e0] mb-2"
@@ -129,7 +129,7 @@ export function Map() {
         {/* Kingdoms List Below Map */}
         <div className="mt-20">
           <h2
-            className="text-4xl font-bold text-[#e0e0e0] mb-8"
+            className="text-3xl sm:text-4xl font-bold text-[#e0e0e0] mb-8"
             style={{ fontFamily: 'Cinzel Decorative, serif' }}
           >
             REINOS & CIDADES

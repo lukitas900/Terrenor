@@ -121,19 +121,19 @@ export function Home() {
 
         {/* Rune Ring Decoration */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] border border-[#9d4edd]/20 rounded-full animate-rotate-slow" />
-          <div className="absolute w-[500px] h-[500px] md:w-[700px] md:h-[700px] border border-[#c9a227]/10 rounded-full animate-rotate-slow" style={{ animationDirection: 'reverse', animationDuration: '90s' }} />
+          <div className="w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] md:w-[800px] md:h-[800px] border border-[#9d4edd]/20 rounded-full animate-rotate-slow" />
+          <div className="absolute w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] md:w-[700px] md:h-[700px] border border-[#c9a227]/10 rounded-full animate-rotate-slow" style={{ animationDirection: 'reverse', animationDuration: '90s' }} />
         </div>
 
         {/* Content */}
         <div className="relative z-10 text-center px-4">
           <h1
-            className="hero-title text-6xl md:text-8xl lg:text-9xl font-black text-glow mb-4"
+            className="hero-title text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-glow mb-4"
             style={{ fontFamily: 'Cinzel Decorative, serif' }}
           >
             TERRENOR
           </h1>
-          <p className="hero-subtitle text-xl md:text-2xl text-[#e0e0e0]/80 mb-8 tracking-widest">
+          <p className="hero-subtitle text-lg sm:text-xl md:text-2xl text-[#e0e0e0]/80 mb-8 tracking-widest">
             Um Mundo Forjado nas Sombras
           </p>
           <Link
@@ -165,9 +165,9 @@ export function Home() {
       {/* Features Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0a0a0a] via-[#1a0b2e]/30 to-[#0a0a0a]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 px-4">
             <h2
-              className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 gradient-text"
               style={{ fontFamily: 'Cinzel Decorative, serif' }}
             >
               Explore Terrenor
@@ -253,10 +253,10 @@ export function Home() {
           {/* Text Left */}
           <div className="lg:w-1/2">
             <h2
-              className="text-4xl md:text-5xl font-bold mb-6 text-[#e0e0e0]"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-[#e0e0e0]"
               style={{ fontFamily: 'Cinzel Decorative, serif' }}
             >
-              O MUNDO DE <br /> <span className="text-[#9d4edd]">TERRENOR</span>
+              O MUNDO DE <br className="hidden sm:block" /> <span className="text-[#9d4edd]">TERRENOR</span>
             </h2>
             <p className="text-[#e0e0e0]/70 mb-4 leading-relaxed">
               Um continente marcado por guerras anciãs, onde a magia flui como rios e o perigo espreita em cada sombra. Dos picos imponentes de Arvandor às profundezas das catacumbas de Grimfort, aventuras aguardam aqueles corajosos o suficiente para buscá-las.
@@ -280,7 +280,7 @@ export function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="text-4xl font-bold mb-4 gradient-text"
+              className="text-3xl sm:text-4xl font-bold mb-4 gradient-text"
               style={{ fontFamily: 'Cinzel Decorative, serif' }}
             >
               RAÇAS DE TERRENOR
@@ -290,7 +290,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {featuredRaces.map((race) => (
               <Link
                 key={race.id}
@@ -353,7 +353,7 @@ export function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="text-4xl font-bold mb-4 gradient-text"
+              className="text-3xl sm:text-4xl font-bold mb-4 gradient-text"
               style={{ fontFamily: 'Cinzel Decorative, serif' }}
             >
               REINOS & CIDADES
@@ -421,7 +421,7 @@ export function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2
-              className="text-4xl font-bold mb-4 gradient-text"
+              className="text-3xl sm:text-4xl font-bold mb-4 gradient-text"
               style={{ fontFamily: 'Cinzel Decorative, serif' }}
             >
               FIGURAS NOTÁVEIS
@@ -471,7 +471,7 @@ export function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-[#2d1b4e]/30 bg-gradient-to-b from-transparent to-[#0d0d12]/50">
         <div className="max-w-7xl mx-auto text-center">
           <h2
-            className="text-4xl font-bold mb-4 gradient-text"
+            className="text-3xl sm:text-4xl font-bold mb-4 gradient-text"
             style={{ fontFamily: 'Cinzel Decorative, serif' }}
           >
             ATLAS DE TERRENOR

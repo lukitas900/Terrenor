@@ -104,7 +104,7 @@ export function RaceDetail() {
                     </div>
 
                     <h1
-                        className="text-5xl md:text-7xl font-bold"
+                        className="text-4xl md:text-5xl lg:text-7xl font-bold"
                         style={{
                             fontFamily: 'Cinzel Decorative, serif',
                             color: '#ffffff',

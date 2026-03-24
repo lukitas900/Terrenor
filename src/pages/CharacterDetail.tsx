@@ -56,7 +56,7 @@ export function CharacterDetail() {
                 </span>
               </div>
               <h1 
-                className="text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-3 drop-shadow-md"
+                className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-3 drop-shadow-md"
                 style={{ fontFamily: 'Cinzel Decorative, serif' }}
               >
                 {character.name}
