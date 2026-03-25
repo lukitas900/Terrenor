@@ -3,7 +3,7 @@ import type { PointerEvent } from 'react';
 import { useTabletop } from './TabletopContext';
 import { Token } from './Token';
 import { ScenarioObject } from './ScenarioObject';
-import { SQUARE_SIZE, GRID_WIDTH, GRID_HEIGHT } from './constants';
+import { SQUARE_SIZE } from './constants';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 const MIN_ZOOM = 0.3;
@@ -76,8 +76,8 @@ export const MapBoard = () => {
   const [arrowDrag, setArrowDrag] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const [fogDrag, setFogDrag] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
-  const boardWidth  = GRID_WIDTH  * SQUARE_SIZE;
-  const boardHeight = GRID_HEIGHT * SQUARE_SIZE;
+  const boardWidth  = state.gridWidth  * SQUARE_SIZE;
+  const boardHeight = state.gridHeight * SQUARE_SIZE;
   const totalScale  = fitScale * zoomLevel;
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export const MapBoard = () => {
     const by = (clientY - rect.top)  / s;
     const gx = Math.floor(bx / SQUARE_SIZE);
     const gy = Math.floor(by / SQUARE_SIZE);
-    if (gx < 0 || gx >= GRID_WIDTH || gy < 0 || gy >= GRID_HEIGHT) return null;
+    if (gx < 0 || gx >= state.gridWidth || gy < 0 || gy >= state.gridHeight) return null;
     return { gx, gy };
   };
 

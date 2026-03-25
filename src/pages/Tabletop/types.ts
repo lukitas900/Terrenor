@@ -45,6 +45,8 @@ export type TabletopState = {
   gridMarkings: Record<string, string>;
   mapArrows: MapArrow[];
   fogOfWar: Record<number, string[]>; // Map group ID (1-8) to foggy squares
+  gridWidth: number; // Dynamic grid width
+  gridHeight: number; // Dynamic grid height
 };
 
 export type MapArrow = {

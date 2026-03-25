@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTabletop } from './TabletopContext';
 import type { ActiveTool } from './TabletopContext';
-import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye } from 'lucide-react';
+import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye, Grid3x3 } from 'lucide-react';
 
 const COLORS = [
   { name: 'Amarelo',  value: '#ffff00' },
@@ -47,6 +47,7 @@ export const LeftSidebar = () => {
     selectedMapObjectId, deleteMapObject,
     clearGridMarkings, clearArrows, clearMapObjects,
     addMapObject, clearFog, clearFogGroup,
+    setGridDimensions,
   } = useTabletop();
 
   const [selectedSides, setSelectedSides] = useState(20);
@@ -144,6 +145,52 @@ export const LeftSidebar = () => {
             Remover Imagem
           </button>
         )}
+      </div>
+
+      <hr className="border-[#2d1b4e]/30" />
+
+      {/* ── TAMANHO DO TABULEIRO ── */}
+      <div className="space-y-3">
+        <h3 className="font-bold text-white flex items-center gap-2"><Grid3x3 size={14} /> Tamanho do Tabuleiro</h3>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Largura</label>
+            <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridWidth}</span>
+          </div>
+          <input 
+            type="range" 
+            min="5" 
+            max="50" 
+            value={state.gridWidth}
+            onChange={(e) => setGridDimensions(Number(e.target.value), state.gridHeight)}
+            className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
+          />
+          <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Altura</label>
+            <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridHeight}</span>
+          </div>
+          <input 
+            type="range" 
+            min="5" 
+            max="50" 
+            value={state.gridHeight}
+            onChange={(e) => setGridDimensions(state.gridWidth, Number(e.target.value))}
+            className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
+          />
+          <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
+        </div>
+
+        <button 
+          onClick={() => setGridDimensions(20, 20)}
+          className="w-full py-2 text-xs font-bold text-gray-400 hover:text-white bg-black/20 hover:bg-black/40 border border-[#2d1b4e] rounded transition-all"
+        >
+          Resetar para 20x20
+        </button>
       </div>
 
       <hr className="border-[#2d1b4e]/30" />

@@ -14,6 +14,8 @@ const initialState: TabletopState = {
   gridMarkings: {},
   mapArrows: [],
   fogOfWar: {}, // Group ID (1-8) -> string[]
+  gridWidth: 20,
+  gridHeight: 20,
 };
 
 export type TabletopContextType = {
@@ -50,6 +52,7 @@ export type TabletopContextType = {
   removeFogRange: (x1: number, y1: number, x2: number, y2: number) => void;
   clearFog: () => void;
   clearFogGroup: (group: number) => void;
+  setGridDimensions: (width: number, height: number) => void;
 };
 
 const TabletopContext = createContext<TabletopContextType | undefined>(undefined);
@@ -233,6 +236,10 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
       });
   };
 
+  const setGridDimensions = (width: number, height: number) => {
+    setState(prev => ({ ...prev, gridWidth: width, gridHeight: height }));
+  };
+
   return (
     <TabletopContext.Provider
       value={{
@@ -249,6 +256,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         clearGridMarkings, toggleGridMarking, setGridMarking,
         addArrow, removeArrow, clearArrows,
         toggleFog, setFogRange, removeFogRange, clearFog, clearFogGroup,
+        setGridDimensions,
       }}
     >
       {children}

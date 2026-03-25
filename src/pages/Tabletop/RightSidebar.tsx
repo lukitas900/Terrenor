@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useTabletop } from './TabletopContext';
 import { Plus, Trash2, X, Sword, Copy } from 'lucide-react';
 import type { Character, InventoryItem } from './types';
-import { GRID_WIDTH, GRID_HEIGHT } from './constants';
 
 const SIZES = [1, 1.5, 2, 3, 4, 6];
 
@@ -121,7 +120,7 @@ const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
         name: tokenName.trim() || 'Sem Nome',
         imageUrl: tokenDataUrls[0],
         alternativeImages: tokenDataUrls,
-        position: { x: Math.floor(GRID_WIDTH / 2) - 1, y: Math.floor(GRID_HEIGHT / 2) - 1 },
+        position: { x: Math.floor(state.gridWidth / 2) - 1, y: Math.floor(state.gridHeight / 2) - 1 },
         size: tokenSize,
         rotation: 0,
         hp: 100,
