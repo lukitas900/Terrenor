@@ -169,7 +169,7 @@ export const spells: Spell[] = [
     type: 'dano',
     typeLabel: 'Dano',
     manaCost: 5,
-    damage: '3 de dano por rodada podendo acumular infinitamente',
+    damage: '3 de dano por rodada acumulativo',
     duration: '3 + d3 rodadas',
     effect: 'Veneno acumulativo',
   },

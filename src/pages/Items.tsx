@@ -15,12 +15,6 @@ const typeIcons: Record<string, React.ElementType> = {
   acessorio: Crosshair,
 };
 
-const weightColors: Record<string, string> = {
-  leve: '#22c55e',
-  médio: '#f59e0b',
-  pesado: '#ef4444',
-};
-
 export function Items() {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedRarity, setSelectedRarity] = useState('all');
@@ -141,49 +135,10 @@ export function Items() {
                     </div>
                   </div>
 
-                  <p className="text-[#e0e0e0]/70 text-sm line-clamp-3 mb-4">
+                  <p className="text-[#e0e0e0]/70 text-sm line-clamp-2 mb-4">
                     {item.description}
                   </p>
 
-                  {/* Tags: weight, hands, attribute */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {item.weight && (
-                      <span
-                        className="px-2 py-0.5 rounded text-xs font-medium border"
-                        style={{
-                          color: weightColors[item.weight] ?? '#e0e0e0',
-                          backgroundColor: `${weightColors[item.weight] ?? '#e0e0e0'}15`,
-                          borderColor: `${weightColors[item.weight] ?? '#e0e0e0'}40`,
-                        }}
-                      >
-                        ⚖ {item.weight}
-                      </span>
-                    )}
-                    {item.hands && (
-                      <span className="px-2 py-0.5 bg-[#2d1b4e]/80 rounded text-xs text-[#e0e0e0]/70 border border-[#2d1b4e]">
-                        🤝 {item.hands}
-                      </span>
-                    )}
-                    {item.attribute && (
-                      <span className="px-2 py-0.5 bg-[#9d4edd]/20 rounded text-xs text-[#9d4edd] border border-[#9d4edd]/30">
-                        ✦ {item.attribute}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Stats Preview */}
-                  {item.stats && Object.keys(item.stats).length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {Object.entries(item.stats).slice(0, 3).map(([key, value]) => (
-                        <span
-                          key={key}
-                          className="px-2 py-0.5 bg-[#2d1b4e]/80 rounded text-xs text-[#e0e0e0]/70 backdrop-blur-sm"
-                        >
-                          {key}: {value}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   {/* Footer */}
                   <div className="pt-3 border-t border-[#2d1b4e]/50 flex items-center justify-between mt-auto">

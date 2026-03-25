@@ -45,28 +45,38 @@ export function ItemDetail() {
 
         {/* Header */}
         <div className="bg-[#1a0b2e]/50 rounded-2xl border border-[#2d1b4e]/50 overflow-hidden mb-8">
+          {item.image && (
+            <div className="w-full h-64 sm:h-80 md:h-96 relative overflow-hidden bg-black/50">
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1a0b2e]/90 to-transparent" />
+            </div>
+          )}
           <div 
-            className="p-8"
-            style={{ backgroundColor: `${rarityColor}10` }}
+            className="p-8 relative z-10"
+            style={{ backgroundColor: `${rarityColor}10`, marginTop: item.image ? '-4rem' : '0' }}
           >
             <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
               <div className="flex items-center gap-4">
                 <div 
-                  className="p-4 rounded-xl"
+                  className="p-4 rounded-xl shadow-lg backdrop-blur-md"
                   style={{ backgroundColor: `${rarityColor}20` }}
                 >
                   <Icon className="w-8 h-8" style={{ color: rarityColor }} />
                 </div>
                 <div>
                   <h1 
-                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-2"
+                    className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#e0e0e0] mb-2 drop-shadow-md"
                     style={{ fontFamily: 'Cinzel Decorative, serif' }}
                   >
                     {item.name}
                   </h1>
                   <div className="flex items-center gap-2">
                     <span 
-                      className="px-3 py-1 rounded-lg text-sm font-medium"
+                      className="px-3 py-1 rounded-lg text-sm font-medium shadow-sm backdrop-blur-sm"
                       style={{ 
                         backgroundColor: `${rarityColor}20`,
                         color: rarityColor,
@@ -75,7 +85,7 @@ export function ItemDetail() {
                     >
                       {item.rarityLabel}
                     </span>
-                    <span className="text-[#e0e0e0]/50 text-sm">
+                    <span className="text-[#e0e0e0]/70 text-sm font-medium drop-shadow-sm">
                       {item.typeLabel}
                     </span>
                   </div>
@@ -84,7 +94,7 @@ export function ItemDetail() {
               
               {item.value && (
                 <div 
-                  className="px-4 py-3 rounded-xl text-center"
+                  className="px-4 py-3 rounded-xl text-center shadow-lg backdrop-blur-md"
                   style={{ backgroundColor: '#c9a22720', border: '1px solid #c9a22740' }}
                 >
                   <div className="text-2xl font-bold text-[#c9a227]">{item.value}</div>
@@ -93,7 +103,7 @@ export function ItemDetail() {
               )}
             </div>
 
-            <p className="text-lg text-[#e0e0e0]/80 leading-relaxed">
+            <p className="text-lg text-[#e0e0e0]/90 leading-relaxed max-w-3xl drop-shadow-sm">
               {item.description}
             </p>
           </div>
