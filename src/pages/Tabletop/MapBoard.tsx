@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import type { PointerEvent } from 'react';
 import { useTabletop } from './TabletopContext';
 import { Token } from './Token';
@@ -57,6 +57,33 @@ const ArrowSVG = ({
   );
 };
 
+/** Compute the border edges of the active cells for LED glow rendering */
+function computeBorderEdges(activeCellsSet: Set<string>) {
+  const edges: { x1: number; y1: number; x2: number; y2: number }[] = [];
+  for (const key of activeCellsSet) {
+    const [cx, cy] = key.split(',').map(Number);
+    const px = cx * SQUARE_SIZE;
+    const py = cy * SQUARE_SIZE;
+    // Top edge: if no neighbor above
+    if (!activeCellsSet.has(`${cx},${cy - 1}`)) {
+      edges.push({ x1: px, y1: py, x2: px + SQUARE_SIZE, y2: py });
+    }
+    // Bottom edge: if no neighbor below
+    if (!activeCellsSet.has(`${cx},${cy + 1}`)) {
+      edges.push({ x1: px, y1: py + SQUARE_SIZE, x2: px + SQUARE_SIZE, y2: py + SQUARE_SIZE });
+    }
+    // Left edge: if no neighbor left
+    if (!activeCellsSet.has(`${cx - 1},${cy}`)) {
+      edges.push({ x1: px, y1: py, x2: px, y2: py + SQUARE_SIZE });
+    }
+    // Right edge: if no neighbor right
+    if (!activeCellsSet.has(`${cx + 1},${cy}`)) {
+      edges.push({ x1: px + SQUARE_SIZE, y1: py, x2: px + SQUARE_SIZE, y2: py + SQUARE_SIZE });
+    }
+  }
+  return edges;
+}
+
 export const MapBoard = () => {
   const {
     state, setState, isLoaded,
@@ -64,7 +91,9 @@ export const MapBoard = () => {
     setGridMarking, toggleGridMarking,
     addArrow, removeArrow,
     setSelectedCharacterId, setSelectedMapObjectId,
-    toggleFog, setFogRange, removeFogRange
+    toggleFog, setFogRange, removeFogRange,
+    activeCellsSet, sculptMode,
+    toggleMapCell, addMapCellRange, removeMapCellRange,
   } = useTabletop();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,10 +104,29 @@ export const MapBoard = () => {
 
   const [arrowDrag, setArrowDrag] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
   const [fogDrag, setFogDrag] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const [sculptDrag, setSculptDrag] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
 
-  const boardWidth  = state.gridWidth  * SQUARE_SIZE;
-  const boardHeight = state.gridHeight * SQUARE_SIZE;
+  // Compute bounding box of active cells (with 1-cell margin for sculpting outside the map)
+  const bounds = useMemo(() => {
+    if (activeCellsSet.size === 0) return { minX: 0, minY: 0, maxX: state.gridWidth, maxY: state.gridHeight };
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const key of activeCellsSet) {
+      const [x, y] = key.split(',').map(Number);
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+    // Add margin for sculpting
+    return { minX: minX - 2, minY: minY - 2, maxX: maxX + 3, maxY: maxY + 3 };
+  }, [activeCellsSet, state.gridWidth, state.gridHeight]);
+
+  const boardWidth  = (bounds.maxX - bounds.minX) * SQUARE_SIZE;
+  const boardHeight = (bounds.maxY - bounds.minY) * SQUARE_SIZE;
   const totalScale  = fitScale * zoomLevel;
+
+  // Border edges for LED glow
+  const borderEdges = useMemo(() => computeBorderEdges(activeCellsSet), [activeCellsSet]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -106,6 +154,7 @@ export const MapBoard = () => {
     return () => { ro.disconnect(); el.removeEventListener('wheel', handleWheel); };
   }, [isLoaded, boardWidth, boardHeight]);
 
+  // Convert client coords to grid coords (considering bounds offset)
   const clientToGrid = (clientX: number, clientY: number) => {
     const board = document.getElementById('tabletop-board');
     if (!board) return null;
@@ -113,10 +162,17 @@ export const MapBoard = () => {
     const s = rect.width / board.offsetWidth;
     const bx = (clientX - rect.left) / s;
     const by = (clientY - rect.top)  / s;
-    const gx = Math.floor(bx / SQUARE_SIZE);
-    const gy = Math.floor(by / SQUARE_SIZE);
-    if (gx < 0 || gx >= state.gridWidth || gy < 0 || gy >= state.gridHeight) return null;
+    const gx = Math.floor(bx / SQUARE_SIZE) + bounds.minX;
+    const gy = Math.floor(by / SQUARE_SIZE) + bounds.minY;
     return { gx, gy };
+  };
+
+  // For non-sculpt tools, check if the cell is within active cells
+  const clientToActiveGrid = (clientX: number, clientY: number) => {
+    const result = clientToGrid(clientX, clientY);
+    if (!result) return null;
+    if (!activeCellsSet.has(`${result.gx},${result.gy}`)) return null;
+    return result;
   };
 
   const cursorStyle =
@@ -125,6 +181,7 @@ export const MapBoard = () => {
     activeTool === 'arrow' ? 'cursor-crosshair' :
     activeTool === 'fog'   ? 'cursor-crosshair' :
     activeTool === 'reveal' ? 'cursor-crosshair' :
+    activeTool === 'sculpt' ? 'cursor-crosshair' :
     activeTool === 'select' ? 'cursor-default' : 'cursor-default';
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -156,9 +213,52 @@ export const MapBoard = () => {
       return;
     }
 
+    // ── SCULPT DRAG ──
+    if (activeTool === 'sculpt') {
+      const startCell = clientToGrid(e.clientX, e.clientY);
+      if (!startCell) return;
+      const { gx: sx, gy: sy } = startCell;
+
+      // Single click: toggle
+      setSculptDrag({ x1: sx, y1: sy, x2: sx, y2: sy });
+      const pointerId = e.pointerId;
+      const el = e.currentTarget;
+      el.setPointerCapture(pointerId);
+      let moved = false;
+
+      const onMove = (mv: globalThis.PointerEvent) => {
+        const cell = clientToGrid(mv.clientX, mv.clientY);
+        if (cell) {
+          if (cell.gx !== sx || cell.gy !== sy) moved = true;
+          setSculptDrag({ x1: sx, y1: sy, x2: cell.gx, y2: cell.gy });
+        }
+      };
+      const onUp = (up: globalThis.PointerEvent) => {
+        el.releasePointerCapture(pointerId);
+        el.removeEventListener('pointermove', onMove);
+        el.removeEventListener('pointerup', onUp);
+        const cell = clientToGrid(up.clientX, up.clientY);
+        const ex = cell ? cell.gx : sx;
+        const ey = cell ? cell.gy : sy;
+
+        if (!moved && ex === sx && ey === sy) {
+          // Single click toggle
+          toggleMapCell(sx, sy);
+        } else {
+          // Drag range
+          if (sculptMode === 'add') addMapCellRange(sx, sy, ex, ey);
+          else removeMapCellRange(sx, sy, ex, ey);
+        }
+        setSculptDrag(null);
+      };
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+      return;
+    }
+
     // ── FOG DRAG ──
     if (activeTool === 'fog') {
-      const startCell = clientToGrid(e.clientX, e.clientY);
+      const startCell = clientToActiveGrid(e.clientX, e.clientY);
       if (!startCell) return;
       const { gx: sx, gy: sy } = startCell;
       setFogDrag({ x1: sx, y1: sy, x2: sx, y2: sy });
@@ -166,14 +266,14 @@ export const MapBoard = () => {
       const el = e.currentTarget;
       el.setPointerCapture(pointerId);
       const onMove = (mv: globalThis.PointerEvent) => {
-        const cell = clientToGrid(mv.clientX, mv.clientY);
+        const cell = clientToActiveGrid(mv.clientX, mv.clientY);
         if (cell) setFogDrag({ x1: sx, y1: sy, x2: cell.gx, y2: cell.gy });
       };
       const onUp = (up: globalThis.PointerEvent) => {
         el.releasePointerCapture(pointerId);
         el.removeEventListener('pointermove', onMove);
         el.removeEventListener('pointerup', onUp);
-        const cell = clientToGrid(up.clientX, up.clientY);
+        const cell = clientToActiveGrid(up.clientX, up.clientY);
         const ex = cell ? cell.gx : sx;
         const ey = cell ? cell.gy : sy;
         if (ex === sx && ey === sy) toggleFog(sx, sy);
@@ -187,7 +287,7 @@ export const MapBoard = () => {
 
     // ── REVEAL DRAG ──
     if (activeTool === 'reveal') {
-      const startCell = clientToGrid(e.clientX, e.clientY);
+      const startCell = clientToActiveGrid(e.clientX, e.clientY);
       if (!startCell) return;
       const { gx: sx, gy: sy } = startCell;
       setFogDrag({ x1: sx, y1: sy, x2: sx, y2: sy });
@@ -195,14 +295,14 @@ export const MapBoard = () => {
       const el = e.currentTarget;
       el.setPointerCapture(pointerId);
       const onMove = (mv: globalThis.PointerEvent) => {
-        const cell = clientToGrid(mv.clientX, mv.clientY);
+        const cell = clientToActiveGrid(mv.clientX, mv.clientY);
         if (cell) setFogDrag({ x1: sx, y1: sy, x2: cell.gx, y2: cell.gy });
       };
       const onUp = (up: globalThis.PointerEvent) => {
         el.releasePointerCapture(pointerId);
         el.removeEventListener('pointermove', onMove);
         el.removeEventListener('pointerup', onUp);
-        const cell = clientToGrid(up.clientX, up.clientY);
+        const cell = clientToActiveGrid(up.clientX, up.clientY);
         const ex = cell ? cell.gx : sx;
         const ey = cell ? cell.gy : sy;
         removeFogRange(sx, sy, ex, ey);
@@ -215,7 +315,7 @@ export const MapBoard = () => {
 
     // ── ARROW DRAG ──
     if (activeTool === 'arrow' && activeColor) {
-      const startCell = clientToGrid(e.clientX, e.clientY);
+      const startCell = clientToActiveGrid(e.clientX, e.clientY);
       if (!startCell) return;
       const { gx: sx, gy: sy } = startCell;
       setArrowDrag({ x1: sx, y1: sy, x2: sx, y2: sy });
@@ -223,14 +323,14 @@ export const MapBoard = () => {
       const el = e.currentTarget;
       el.setPointerCapture(pointerId);
       const onMove = (mv: globalThis.PointerEvent) => {
-        const cell = clientToGrid(mv.clientX, mv.clientY);
+        const cell = clientToActiveGrid(mv.clientX, mv.clientY);
         if (cell) setArrowDrag({ x1: sx, y1: sy, x2: cell.gx, y2: cell.gy });
       };
       const onUp = (up: globalThis.PointerEvent) => {
         el.releasePointerCapture(pointerId);
         el.removeEventListener('pointermove', onMove);
         el.removeEventListener('pointerup', onUp);
-        const cell = clientToGrid(up.clientX, up.clientY);
+        const cell = clientToActiveGrid(up.clientX, up.clientY);
         const ex = cell ? cell.gx : sx;
         const ey = cell ? cell.gy : sy;
         if (ex !== sx || ey !== sy) addArrow(sx, sy, ex, ey, activeColor);
@@ -243,7 +343,7 @@ export const MapBoard = () => {
 
     // ── PAINT DRAG ──
     if (activeTool === 'paint' && activeColor) {
-      const startCell = clientToGrid(e.clientX, e.clientY);
+      const startCell = clientToActiveGrid(e.clientX, e.clientY);
       if (!startCell) return;
 
       const key = `${startCell.gx},${startCell.gy}`;
@@ -260,7 +360,7 @@ export const MapBoard = () => {
       el.setPointerCapture(pointerId);
 
       const onMove = (mv: globalThis.PointerEvent) => {
-        const cell = clientToGrid(mv.clientX, mv.clientY);
+        const cell = clientToActiveGrid(mv.clientX, mv.clientY);
         if (cell) setGridMarking(cell.gx, cell.gy, activeColor);
       };
       const onUp = () => {
@@ -293,6 +393,12 @@ export const MapBoard = () => {
     );
   }
 
+  // Offset for rendering: translate grid coords into board-local pixel coords
+  const cellToPx = (gx: number, gy: number) => ({
+    px: (gx - bounds.minX) * SQUARE_SIZE,
+    py: (gy - bounds.minY) * SQUARE_SIZE,
+  });
+
   return (
     <div ref={containerRef} className={`relative w-full h-full bg-[#0d0d12] overflow-hidden flex items-center justify-center ${cursorStyle}`} onPointerDown={handlePointerDown}>
       <div data-no-map-click className="absolute top-3 left-1/2 -translate-x-1/2 z-50 flex gap-1 bg-black/60 px-2 py-1 rounded-full border border-[#2d1b4e]/70 backdrop-blur-sm">
@@ -310,42 +416,167 @@ export const MapBoard = () => {
         <button onClick={() => setZoomLevel(z => Math.max(MIN_ZOOM, z - 0.15))} className="w-8 h-8 flex items-center justify-center rounded bg-black/60 border border-[#2d1b4e] text-white hover:border-[#9d4edd]"><ZoomOut size={15} /></button>
       </div>
 
-      <div id="tabletop-board" className="relative shrink-0 select-none border-4 border-[#2d1b4e] rounded-lg"
-        style={{ width: boardWidth, height: boardHeight, transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${totalScale})`, transformOrigin: 'center center', boxShadow: '0 0 60px rgba(45,27,78,0.9)', ...bgStyle }}>
+      <div id="tabletop-board" className="relative shrink-0 select-none"
+        style={{ width: boardWidth, height: boardHeight, transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${totalScale})`, transformOrigin: 'center center' }}>
         
-        <div id="tabletop-board-bg" className="absolute inset-0 z-0 rounded-lg overflow-hidden" style={{ backgroundImage: 'inherit', backgroundSize: 'inherit', backgroundPosition: 'inherit' }} />
+        {/* Render active cells as individual tiles with background */}
+        {Array.from(activeCellsSet).map(key => {
+          const [cx, cy] = key.split(',').map(Number);
+          const { px, py } = cellToPx(cx, cy);
+          return (
+            <div key={key} className="absolute" style={{
+              top: py, left: px, width: SQUARE_SIZE, height: SQUARE_SIZE,
+              ...bgStyle,
+              backgroundSize: state.backgroundImageUrl ? `${boardWidth}px ${boardHeight}px` : undefined,
+              backgroundPosition: state.backgroundImageUrl ? `-${px}px -${py}px` : undefined,
+              zIndex: 1,
+            }} />
+          );
+        })}
 
-        <div className="absolute inset-0 pointer-events-none rounded-lg overflow-hidden" style={{ zIndex: 3, backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: `${SQUARE_SIZE}px ${SQUARE_SIZE}px` }} />
+        {/* Grid lines — only on active cells */}
+        {Array.from(activeCellsSet).map(key => {
+          const [cx, cy] = key.split(',').map(Number);
+          const { px, py } = cellToPx(cx, cy);
+          return (
+            <div key={`grid-${key}`} className="absolute pointer-events-none" style={{
+              top: py, left: px, width: SQUARE_SIZE, height: SQUARE_SIZE,
+              zIndex: 3,
+              borderRight: '1px solid rgba(255,255,255,0.12)',
+              borderBottom: '1px solid rgba(255,255,255,0.12)',
+            }} />
+          );
+        })}
 
+        {/* LED Border edges */}
+        <svg className="absolute inset-0 pointer-events-none" style={{ width: boardWidth, height: boardHeight, zIndex: 7, overflow: 'visible' }} viewBox={`0 0 ${boardWidth} ${boardHeight}`}>
+          <defs>
+            <filter id="led-glow-outer" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+            </filter>
+          </defs>
+          {/* Soft outer glow layer */}
+          {borderEdges.map((edge, i) => {
+            const ox = -bounds.minX * SQUARE_SIZE;
+            const oy = -bounds.minY * SQUARE_SIZE;
+            return (
+              <line
+                key={`glow-${i}`}
+                x1={edge.x1 + ox} y1={edge.y1 + oy}
+                x2={edge.x2 + ox} y2={edge.y2 + oy}
+                stroke="#9d4edd"
+                strokeWidth={10}
+                strokeLinecap="square"
+                filter="url(#led-glow-outer)"
+                opacity={0.6}
+              />
+            );
+          })}
+          {/* Solid border line */}
+          {borderEdges.map((edge, i) => {
+            const ox = -bounds.minX * SQUARE_SIZE;
+            const oy = -bounds.minY * SQUARE_SIZE;
+            return (
+              <line
+                key={`edge-${i}`}
+                x1={edge.x1 + ox} y1={edge.y1 + oy}
+                x2={edge.x2 + ox} y2={edge.y2 + oy}
+                stroke="#2d1b4e"
+                strokeWidth={3}
+                strokeLinecap="square"
+              />
+            );
+          })}
+        </svg>
+
+        {/* Sculpt mode: show inactive cells as ghosted squares for adding */}
+        {activeTool === 'sculpt' && (() => {
+          const ghosts: React.ReactNode[] = [];
+          // Show a margin around the active cells as ghost cells
+          for (let x = bounds.minX; x < bounds.maxX; x++) {
+            for (let y = bounds.minY; y < bounds.maxY; y++) {
+              const key = `${x},${y}`;
+              if (!activeCellsSet.has(key)) {
+                const { px, py } = cellToPx(x, y);
+                ghosts.push(
+                  <div key={`ghost-${key}`} className="absolute" style={{
+                    top: py, left: px, width: SQUARE_SIZE, height: SQUARE_SIZE,
+                    backgroundColor: 'rgba(157, 78, 221, 0.08)',
+                    border: '1px dashed rgba(157, 78, 221, 0.25)',
+                    zIndex: 2,
+                  }} />
+                );
+              }
+            }
+          }
+          return ghosts;
+        })()}
+
+        {/* Grid markings (paint) */}
         {Object.entries(state.gridMarkings || {}).map(([key, color]) => {
+          if (!activeCellsSet.has(key)) return null;
           const [x, y] = key.split(',').map(Number);
+          const { px, py } = cellToPx(x, y);
           return (
-            <div key={key} className="absolute pointer-events-none opacity-40" style={{ top: y * SQUARE_SIZE, left: x * SQUARE_SIZE, width: SQUARE_SIZE, height: SQUARE_SIZE, backgroundColor: color, zIndex: 5 }} />
+            <div key={key} className="absolute pointer-events-none opacity-40" style={{ top: py, left: px, width: SQUARE_SIZE, height: SQUARE_SIZE, backgroundColor: color, zIndex: 5 }} />
           );
         })}
 
-        {Object.values(state.fogOfWar || {}).flat().map(key => {
+        {/* Fog of war */}
+        {Array.from(new Set(Object.values(state.fogOfWar || {}).flat())).map(key => {
+          if (!activeCellsSet.has(key)) return null;
           const [x, y] = key.split(',').map(Number);
+          const { px, py } = cellToPx(x, y);
           return (
-            <div key={key} className="absolute pointer-events-none bg-black/95 transition-all duration-300" style={{ top: y * SQUARE_SIZE, left: x * SQUARE_SIZE, width: SQUARE_SIZE, height: SQUARE_SIZE, zIndex: 5.5 }} />
+            <div key={`fog-${key}`} className="absolute pointer-events-none bg-black/95 transition-all duration-300" style={{ top: py, left: px, width: SQUARE_SIZE, height: SQUARE_SIZE, zIndex: 6 }} />
           );
         })}
 
+        {/* Fog drag preview */}
         {fogDrag && (
           <div className="absolute border-2 border-dashed border-purple-500 bg-black/40 pointer-events-none"
-            style={{ left: Math.min(fogDrag.x1, fogDrag.x2) * SQUARE_SIZE, top: Math.min(fogDrag.y1, fogDrag.y2) * SQUARE_SIZE, width: (Math.abs(fogDrag.x1 - fogDrag.x2) + 1) * SQUARE_SIZE, height: (Math.abs(fogDrag.y1 - fogDrag.y2) + 1) * SQUARE_SIZE, zIndex: 100 }} />
+            style={{
+              left: (Math.min(fogDrag.x1, fogDrag.x2) - bounds.minX) * SQUARE_SIZE,
+              top: (Math.min(fogDrag.y1, fogDrag.y2) - bounds.minY) * SQUARE_SIZE,
+              width: (Math.abs(fogDrag.x1 - fogDrag.x2) + 1) * SQUARE_SIZE,
+              height: (Math.abs(fogDrag.y1 - fogDrag.y2) + 1) * SQUARE_SIZE,
+              zIndex: 100,
+            }} />
         )}
 
+        {/* Sculpt drag preview */}
+        {sculptDrag && (
+          <div className="absolute border-2 border-dashed pointer-events-none"
+            style={{
+              left: (Math.min(sculptDrag.x1, sculptDrag.x2) - bounds.minX) * SQUARE_SIZE,
+              top: (Math.min(sculptDrag.y1, sculptDrag.y2) - bounds.minY) * SQUARE_SIZE,
+              width: (Math.abs(sculptDrag.x1 - sculptDrag.x2) + 1) * SQUARE_SIZE,
+              height: (Math.abs(sculptDrag.y1 - sculptDrag.y2) + 1) * SQUARE_SIZE,
+              zIndex: 100,
+              borderColor: sculptMode === 'add' ? '#22c55e' : '#ef4444',
+              backgroundColor: sculptMode === 'add' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+            }} />
+        )}
+
+        {/* Arrows */}
         <svg className="absolute inset-0 pointer-events-none" style={{ width: boardWidth, height: boardHeight, zIndex: 10, overflow: 'visible' }} viewBox={`0 0 ${boardWidth} ${boardHeight}`}>
-          {(state.mapArrows || []).map(a => (
-            <ArrowSVG key={a.id} x1c={cellCenter(a.x1)} y1c={cellCenter(a.y1)} x2c={cellCenter(a.x2)} y2c={cellCenter(a.y2)} color={a.color} onClick={() => removeArrow(a.id)} />
-          ))}
+          {(state.mapArrows || []).map(a => {
+            const x1c = cellCenter(a.x1 - bounds.minX);
+            const y1c = cellCenter(a.y1 - bounds.minY);
+            const x2c = cellCenter(a.x2 - bounds.minX);
+            const y2c = cellCenter(a.y2 - bounds.minY);
+            return <ArrowSVG key={a.id} x1c={x1c} y1c={y1c} x2c={x2c} y2c={y2c} color={a.color} onClick={() => removeArrow(a.id)} />;
+          })}
           {arrowDrag && activeColor && (
-            <ArrowSVG x1c={cellCenter(arrowDrag.x1)} y1c={cellCenter(arrowDrag.y1)} x2c={cellCenter(arrowDrag.x2)} y2c={cellCenter(arrowDrag.y2)} color={activeColor} onClick={() => {}} />
+            <ArrowSVG
+              x1c={cellCenter(arrowDrag.x1 - bounds.minX)} y1c={cellCenter(arrowDrag.y1 - bounds.minY)}
+              x2c={cellCenter(arrowDrag.x2 - bounds.minX)} y2c={cellCenter(arrowDrag.y2 - bounds.minY)}
+              color={activeColor} onClick={() => {}} />
           )}
         </svg>
 
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
+        {/* Map objects */}
+        <div className="absolute pointer-events-none" style={{ zIndex: 20, transform: `translate(${-bounds.minX * SQUARE_SIZE}px, ${-bounds.minY * SQUARE_SIZE}px)` }}>
           {(state.mapObjects || []).map(obj => {
              const allFog = Object.values(state.fogOfWar || {}).flat();
              if (allFog.includes(`${obj.position.x},${obj.position.y}`)) return null;
@@ -353,7 +584,8 @@ export const MapBoard = () => {
           })}
         </div>
 
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 40, overflow: 'visible' }}>
+        {/* Characters/Tokens */}
+        <div className="absolute pointer-events-none" style={{ zIndex: 40, overflow: 'visible', transform: `translate(${-bounds.minX * SQUARE_SIZE}px, ${-bounds.minY * SQUARE_SIZE}px)` }}>
           {(state.characters || []).filter(c => c.isOnMap !== false).map(char => {
             const allFog = Object.values(state.fogOfWar || {}).flat();
             const size = char.size || 1;

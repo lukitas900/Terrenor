@@ -47,6 +47,7 @@ export type TabletopState = {
   fogOfWar: Record<number, string[]>; // Map group ID (1-8) to foggy squares
   gridWidth: number; // Dynamic grid width
   gridHeight: number; // Dynamic grid height
+  activeCells?: string[]; // "x,y" keys for cells that are part of the map (irregular shapes)
 };
 
 export type MapArrow = {

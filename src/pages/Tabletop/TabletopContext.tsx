@@ -4,7 +4,18 @@ import type { TabletopState, Character, MapObject, MapArrow } from './types';
 import { loadStateFromDB, saveStateToDB } from './indexedDB';
 
 // Tools
-export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow' | 'fog' | 'reveal';
+export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow' | 'fog' | 'reveal' | 'sculpt';
+
+// Helper: generate rectangular active cells
+const generateRectCells = (w: number, h: number): string[] => {
+  const cells: string[] = [];
+  for (let x = 0; x < w; x++) {
+    for (let y = 0; y < h; y++) {
+      cells.push(`${x},${y}`);
+    }
+  }
+  return cells;
+};
 
 // Default initial state
 const initialState: TabletopState = {
@@ -16,6 +27,7 @@ const initialState: TabletopState = {
   fogOfWar: {}, // Group ID (1-8) -> string[]
   gridWidth: 20,
   gridHeight: 20,
+  activeCells: generateRectCells(20, 20),
 };
 
 export type TabletopContextType = {
@@ -53,6 +65,14 @@ export type TabletopContextType = {
   clearFog: () => void;
   clearFogGroup: (group: number) => void;
   setGridDimensions: (width: number, height: number) => void;
+  // Sculpt (irregular map)
+  activeCellsSet: Set<string>;
+  sculptMode: 'add' | 'remove';
+  setSculptMode: (mode: 'add' | 'remove') => void;
+  toggleMapCell: (x: number, y: number) => void;
+  addMapCellRange: (x1: number, y1: number, x2: number, y2: number) => void;
+  removeMapCellRange: (x1: number, y1: number, x2: number, y2: number) => void;
+  resetMapCells: () => void;
 };
 
 const TabletopContext = createContext<TabletopContextType | undefined>(undefined);
@@ -68,6 +88,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
   const [activeFogGroup, setActiveFogGroup] = useState<number>(1);
   const [activePuddleSize, setActivePuddleSize] = useState<number>(1);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [sculptMode, setSculptMode] = useState<'add' | 'remove'>('add');
 
   // Load from persistence
   useEffect(() => {
@@ -91,6 +112,7 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
             gridMarkings: s?.gridMarkings || {},
             mapArrows: s?.mapArrows || [],
             fogOfWar: Array.isArray(s?.fogOfWar) ? { 1: s.fogOfWar } : (s?.fogOfWar || {}),
+            activeCells: s?.activeCells || generateRectCells(s?.gridWidth || 20, s?.gridHeight || 20),
           }));
         }
         setIsLoaded(true);
@@ -237,7 +259,52 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
   };
 
   const setGridDimensions = (width: number, height: number) => {
-    setState(prev => ({ ...prev, gridWidth: width, gridHeight: height }));
+    setState(prev => ({ ...prev, gridWidth: width, gridHeight: height, activeCells: generateRectCells(width, height) }));
+  };
+
+  // ── SCULPT (irregular map) ──
+  const activeCellsSet = new Set(state.activeCells || generateRectCells(state.gridWidth, state.gridHeight));
+
+  const toggleMapCell = (x: number, y: number) => {
+    const key = `${x},${y}`;
+    setState(prev => {
+      const set = new Set(prev.activeCells || generateRectCells(prev.gridWidth, prev.gridHeight));
+      if (set.has(key)) set.delete(key);
+      else set.add(key);
+      return { ...prev, activeCells: Array.from(set) };
+    });
+  };
+
+  const addMapCellRange = (x1: number, y1: number, x2: number, y2: number) => {
+    setState(prev => {
+      const set = new Set(prev.activeCells || generateRectCells(prev.gridWidth, prev.gridHeight));
+      const sx = Math.min(x1, x2), ex = Math.max(x1, x2);
+      const sy = Math.min(y1, y2), ey = Math.max(y1, y2);
+      for (let x = sx; x <= ex; x++) {
+        for (let y = sy; y <= ey; y++) {
+          set.add(`${x},${y}`);
+        }
+      }
+      return { ...prev, activeCells: Array.from(set) };
+    });
+  };
+
+  const removeMapCellRange = (x1: number, y1: number, x2: number, y2: number) => {
+    setState(prev => {
+      const set = new Set(prev.activeCells || generateRectCells(prev.gridWidth, prev.gridHeight));
+      const sx = Math.min(x1, x2), ex = Math.max(x1, x2);
+      const sy = Math.min(y1, y2), ey = Math.max(y1, y2);
+      for (let x = sx; x <= ex; x++) {
+        for (let y = sy; y <= ey; y++) {
+          set.delete(`${x},${y}`);
+        }
+      }
+      return { ...prev, activeCells: Array.from(set) };
+    });
+  };
+
+  const resetMapCells = () => {
+    setState(prev => ({ ...prev, activeCells: generateRectCells(prev.gridWidth, prev.gridHeight) }));
   };
 
   return (
@@ -257,6 +324,8 @@ export function TabletopProvider({ children }: { children: ReactNode }) {
         addArrow, removeArrow, clearArrows,
         toggleFog, setFogRange, removeFogRange, clearFog, clearFogGroup,
         setGridDimensions,
+        activeCellsSet, sculptMode, setSculptMode,
+        toggleMapCell, addMapCellRange, removeMapCellRange, resetMapCells,
       }}
     >
       {children}

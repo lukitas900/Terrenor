@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTabletop } from './TabletopContext';
 import type { ActiveTool } from './TabletopContext';
-import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye, Grid3x3 } from 'lucide-react';
+import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye, Grid3x3, Scissors } from 'lucide-react';
 
 const COLORS = [
   { name: 'Amarelo',  value: '#ffff00' },
@@ -48,6 +48,7 @@ export const LeftSidebar = () => {
     clearGridMarkings, clearArrows, clearMapObjects,
     addMapObject, clearFog, clearFogGroup,
     setGridDimensions,
+    sculptMode, setSculptMode, resetMapCells,
   } = useTabletop();
 
   const [selectedSides, setSelectedSides] = useState(20);
@@ -89,6 +90,7 @@ export const LeftSidebar = () => {
         <ToolButton tool="fog"    label="Colocar Névoa" icon={<Cloud size={14} />} current={activeTool} onClick={() => setActiveTool('fog')} />
         <ToolButton tool="reveal" label="Revelar Área" icon={<Eye size={14} />} current={activeTool} onClick={() => setActiveTool('reveal')} />
         <ToolButton tool="arrow"  label="Colocar Seta" icon={<span style={{fontSize:13}}>➤</span>} current={activeTool} onClick={() => setActiveTool('arrow')} />
+        <ToolButton tool="sculpt" label="Esculpir Mapa" icon={<Scissors size={14} />} current={activeTool} onClick={() => setActiveTool('sculpt')} />
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
@@ -109,6 +111,37 @@ export const LeftSidebar = () => {
                 </button>
               ))}
             </div>
+          </div>
+          <hr className="border-[#2d1b4e]/30" />
+        </>
+      )}
+
+      {/* ── MODO DE ESCULPIR ── */}
+      {activeTool === 'sculpt' && (
+        <>
+          <div className="space-y-2">
+            <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Modo de Esculpir</h3>
+            <div className="grid grid-cols-2 gap-1">
+              <button
+                onClick={() => setSculptMode('add')}
+                className={`py-2 rounded text-xs font-bold border transition-all ${sculptMode === 'add' ? 'bg-green-600 border-green-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+              >
+                + Adicionar
+              </button>
+              <button
+                onClick={() => setSculptMode('remove')}
+                className={`py-2 rounded text-xs font-bold border transition-all ${sculptMode === 'remove' ? 'bg-red-600 border-red-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+              >
+                − Remover
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-500">Clique em um quadrado para adicionar/remover. Arraste para selecionar uma área.</p>
+            <button
+              onClick={resetMapCells}
+              className="w-full py-2 text-xs font-bold text-gray-400 hover:text-white bg-black/20 hover:bg-black/40 border border-[#2d1b4e] rounded transition-all"
+            >
+              Resetar Formato
+            </button>
           </div>
           <hr className="border-[#2d1b4e]/30" />
         </>
