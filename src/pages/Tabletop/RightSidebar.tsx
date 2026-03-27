@@ -93,7 +93,7 @@ export const RightSidebar = () => {
 };
 
 const AddCharacterModal = ({ onClose }: { onClose: () => void }) => {
-  const { setState } = useTabletop();
+  const { state, setState } = useTabletop();
   const [tokenName, setTokenName] = useState('');
   const [tokenDataUrls, setTokenDataUrls] = useState<string[]>([]);
   const [tokenSize, setTokenSize] = useState<number>(1);
