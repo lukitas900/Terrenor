@@ -87,8 +87,18 @@ export const LeftSidebar = () => {
         <ToolButton tool="select" label="Selecionar" icon={<ChevronRight size={14} />} current={activeTool} onClick={() => setActiveTool('select')} />
         <ToolButton tool="pan"    label="Mover Mapa" icon={<Hand size={14} />} current={activeTool} onClick={() => setActiveTool('pan')} />
         <ToolButton tool="paint"  label="Pintar Grid" icon={<Brush size={14} />} current={activeTool} onClick={() => setActiveTool('paint')} />
-        <ToolButton tool="fog"    label="Colocar Névoa" icon={<Cloud size={14} />} current={activeTool} onClick={() => setActiveTool('fog')} />
-        <ToolButton tool="reveal" label="Revelar Área" icon={<Eye size={14} />} current={activeTool} onClick={() => setActiveTool('reveal')} />
+        <button
+          onClick={() => setActiveTool(activeTool === 'fog' || activeTool === 'reveal' ? 'select' : 'fog')}
+          title="Névoa"
+          className={`flex items-center gap-2 w-full px-3 py-2 rounded text-sm font-medium border transition-all ${
+            activeTool === 'fog' || activeTool === 'reveal'
+              ? 'bg-[#9d4edd]/30 border-[#9d4edd] text-white'
+              : 'bg-black/30 border-[#2d1b4e] text-gray-400 hover:text-white hover:border-[#9d4edd]/50'
+          }`}
+        >
+          <Cloud size={14} />
+          Névoa
+        </button>
         <ToolButton tool="arrow"  label="Colocar Seta" icon={<span style={{fontSize:13}}>➤</span>} current={activeTool} onClick={() => setActiveTool('arrow')} />
         <ToolButton tool="sculpt" label="Esculpir Mapa" icon={<Scissors size={14} />} current={activeTool} onClick={() => setActiveTool('sculpt')} />
 
@@ -150,12 +160,32 @@ export const LeftSidebar = () => {
                 <Trash2 size={12} /> Remover Poça Selecionada
               </button>
             )}
+            <button onClick={clearMapObjects} className="flex items-center gap-2 text-pink-400 text-xs border border-pink-900/40 px-3 py-2 rounded w-full hover:bg-pink-900/10 transition-all">
+              <Trash2 size={12} /> Apagar Todas as Poças
+            </button>
           </div>
           <hr className="border-[#2d1b4e]/30" />
         </>
       )}
       {(activeTool === 'fog' || activeTool === 'reveal') && (
         <>
+          <div className="space-y-2">
+            <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Modo</h3>
+            <div className="grid grid-cols-2 gap-1">
+              <button
+                onClick={() => setActiveTool('fog')}
+                className={`py-2 rounded text-xs font-bold border transition-all ${activeTool === 'fog' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+              >
+                ☁️ Colocar
+              </button>
+              <button
+                onClick={() => setActiveTool('reveal')}
+                className={`py-2 rounded text-xs font-bold border transition-all ${activeTool === 'reveal' ? 'bg-blue-600 border-blue-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+              >
+                👁 Revelar
+              </button>
+            </div>
+          </div>
           <div className="space-y-2">
             <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Grupo de Névoa Ativo</h3>
             <div className="grid grid-cols-4 gap-1">
@@ -169,6 +199,17 @@ export const LeftSidebar = () => {
                 </button>
               ))}
             </div>
+            <div className="space-y-1 pt-2">
+              {Object.entries(state.fogOfWar || {}).filter(([_, squares]) => (squares as string[]).length > 0).map(([groupId, squares]) => (
+                <button key={groupId} onClick={() => clearFogGroup(Number(groupId))} className="flex items-center justify-between text-[10px] text-blue-400 hover:text-blue-300 border border-blue-900/40 hover:bg-blue-900/10 px-2 py-1.5 rounded w-full transition-all group">
+                   <span className="flex items-center gap-2"><Eye size={10} /> Revelar Grupo {groupId} ({(squares as string[]).length})</span>
+                   <Trash2 size={10} className="opacity-0 group-hover:opacity-100" />
+                </button>
+              ))}
+            </div>
+            <button onClick={clearFog} className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-xs border border-blue-900/40 px-3 py-2 rounded w-full font-bold transition-all hover:bg-blue-900/10">
+              <Eye size={12} /> Revelar Tudo
+            </button>
           </div>
           <hr className="border-[#2d1b4e]/30" />
         </>
@@ -260,6 +301,16 @@ export const LeftSidebar = () => {
                 />
               ))}
             </div>
+            {activeTool === 'paint' && (
+              <button onClick={clearGridMarkings} className="flex items-center gap-2 text-red-400 text-xs border border-red-900/40 px-3 py-2 rounded w-full hover:bg-red-900/10 transition-all">
+                <Trash2 size={12} /> Apagar Pinturas
+              </button>
+            )}
+            {activeTool === 'arrow' && (
+              <button onClick={clearArrows} className="flex items-center gap-2 text-orange-400 text-xs border border-orange-900/40 px-3 py-2 rounded w-full hover:bg-orange-900/10 transition-all">
+                <Trash2 size={12} /> Apagar Setas
+              </button>
+            )}
           </div>
           <hr className="border-[#2d1b4e]/30" />
         </>
@@ -276,31 +327,6 @@ export const LeftSidebar = () => {
             Remover Imagem
           </button>
         )}
-      </div>
-
-      <hr className="border-[#2d1b4e]/30" />
-      <div className="space-y-2">
-        <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Limpar / Revelar</h3>
-        <div className="space-y-1 mb-2">
-          {Object.entries(state.fogOfWar || {}).filter(([_, squares]) => (squares as string[]).length > 0).map(([groupId, squares]) => (
-            <button key={groupId} onClick={() => clearFogGroup(Number(groupId))} className="flex items-center justify-between text-[10px] text-blue-400 hover:text-blue-300 border border-blue-900/40 hover:bg-blue-900/10 px-2 py-1.5 rounded w-full transition-all group">
-               <span className="flex items-center gap-2"><Eye size={10} /> Revelar Grupo {groupId} ({(squares as string[]).length})</span>
-               <Trash2 size={10} className="opacity-0 group-hover:opacity-100" />
-            </button>
-          ))}
-        </div>
-        <button onClick={clearFog} className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-xs border border-blue-900/40 px-3 py-2 rounded w-full font-bold transition-all hover:bg-blue-900/10">
-          <Eye size={12} /> Revelar Tudo
-        </button>
-        <button onClick={clearGridMarkings} className="flex items-center gap-2 text-red-400 text-xs border border-red-900/40 px-3 py-2 rounded w-full hover:bg-red-900/10 transition-all">
-          <Trash2 size={12} /> Apagar Pinturas
-        </button>
-        <button onClick={clearMapObjects} className="flex items-center gap-2 text-pink-400 text-xs border border-pink-900/40 px-3 py-2 rounded w-full hover:bg-pink-900/10 transition-all">
-          <Trash2 size={12} /> Apagar Poças
-        </button>
-        <button onClick={clearArrows} className="flex items-center gap-2 text-orange-400 text-xs border border-orange-900/40 px-3 py-2 rounded w-full hover:bg-orange-900/10 transition-all">
-          <Trash2 size={12} /> Apagar Setas
-        </button>
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
