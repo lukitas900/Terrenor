@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTabletop } from './TabletopContext';
 import type { ActiveTool } from './TabletopContext';
-import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye, Grid3x3, Scissors } from 'lucide-react';
+import { Image, Brush, Trash2, Hand, Dices, ChevronRight, Cloud, Eye, Scissors, Droplets } from 'lucide-react';
 
 const COLORS = [
   { name: 'Amarelo',  value: '#ffff00' },
@@ -91,11 +91,69 @@ export const LeftSidebar = () => {
         <ToolButton tool="reveal" label="Revelar Área" icon={<Eye size={14} />} current={activeTool} onClick={() => setActiveTool('reveal')} />
         <ToolButton tool="arrow"  label="Colocar Seta" icon={<span style={{fontSize:13}}>➤</span>} current={activeTool} onClick={() => setActiveTool('arrow')} />
         <ToolButton tool="sculpt" label="Esculpir Mapa" icon={<Scissors size={14} />} current={activeTool} onClick={() => setActiveTool('sculpt')} />
+
+        <ToolButton tool="terrain" label="Efeitos de Terreno" icon={<Droplets size={14} />} current={activeTool} onClick={() => setActiveTool('terrain')} />
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
 
-      {/* ── GRUPOS DE NÉVOA ── */}
+      {/* ── EFEITOS DE TERRENO (painel) ── */}
+      {activeTool === 'terrain' && (
+        <>
+          <div className="space-y-2">
+            <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Efeitos de Terreno</h3>
+            <div className="flex gap-1">
+              {[1, 1.5, 2].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setActivePuddleSize(s)}
+                  className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${activePuddleSize === s ? 'bg-purple-600 border-purple-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
+                >
+                  Tam. {s}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { name: 'Sangue', color: '#880000' },
+                { name: 'Trevas', color: '#111111' },
+                { name: 'Veneno', color: '#006600' },
+                { name: 'Gelo',   color: '#aaaaff' },
+                { name: 'Caixa',  image: '/items/crate.png' },
+              ].map(p => (
+                <button
+                  key={p.name}
+                  onClick={() => {
+                    if ('color' in p) {
+                        const svg = `data:image/svg+xml;utf8,${encodeURIComponent(`
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                            <path fill="${p.color}" opacity="0.6" d="M25,45 C10,60 15,85 40,90 C65,95 90,85 90,60 C90,35 70,10 45,15 C30,18 40,30 25,45 Z" />
+                          </svg>
+                        `)}`;
+                        addMapObject(svg, 1, 1);
+                    } else if ('image' in p) {
+                        addMapObject(p.image!, 1, 1);
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 bg-black/30 border border-[#2d1b4e] hover:border-[#9d4edd] py-2 rounded text-[10px] font-bold uppercase transition-all"
+                >
+                  {'color' in p ? <div className="w-2 h-2 rounded-full" style={{backgroundColor:p.color}} /> : '📦'}
+                  {p.name}
+                </button>
+              ))}
+            </div>
+            {selectedMapObjectId && (
+              <button
+                onClick={() => deleteMapObject(selectedMapObjectId)}
+                className="flex items-center justify-center gap-2 w-full py-2 bg-red-900/40 border border-red-500/50 text-red-200 rounded text-[10px] font-bold uppercase transition-all hover:bg-red-900/60 hover:border-red-500"
+              >
+                <Trash2 size={12} /> Remover Poça Selecionada
+              </button>
+            )}
+          </div>
+          <hr className="border-[#2d1b4e]/30" />
+        </>
+      )}
       {(activeTool === 'fog' || activeTool === 'reveal') && (
         <>
           <div className="space-y-2">
@@ -143,6 +201,46 @@ export const LeftSidebar = () => {
               Resetar Formato
             </button>
           </div>
+
+          <div className="space-y-2">
+            <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Tamanho do Tabuleiro</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Largura</label>
+                <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridWidth}</span>
+              </div>
+              <input 
+                type="range" 
+                min="5" 
+                max="50" 
+                value={state.gridWidth}
+                onChange={(e) => setGridDimensions(Number(e.target.value), state.gridHeight)}
+                className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
+              />
+              <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Altura</label>
+                <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridHeight}</span>
+              </div>
+              <input 
+                type="range" 
+                min="5" 
+                max="50" 
+                value={state.gridHeight}
+                onChange={(e) => setGridDimensions(state.gridWidth, Number(e.target.value))}
+                className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
+              />
+              <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
+            </div>
+            <button 
+              onClick={() => setGridDimensions(20, 20)}
+              className="w-full py-2 text-xs font-bold text-gray-400 hover:text-white bg-black/20 hover:bg-black/40 border border-[#2d1b4e] rounded transition-all"
+            >
+              Resetar para 20x20
+            </button>
+          </div>
           <hr className="border-[#2d1b4e]/30" />
         </>
       )}
@@ -181,112 +279,6 @@ export const LeftSidebar = () => {
       </div>
 
       <hr className="border-[#2d1b4e]/30" />
-
-      {/* ── TAMANHO DO TABULEIRO ── */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-white flex items-center gap-2"><Grid3x3 size={14} /> Tamanho do Tabuleiro</h3>
-        
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Largura</label>
-            <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridWidth}</span>
-          </div>
-          <input 
-            type="range" 
-            min="5" 
-            max="50" 
-            value={state.gridWidth}
-            onChange={(e) => setGridDimensions(Number(e.target.value), state.gridHeight)}
-            className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
-          />
-          <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Altura</label>
-            <span className="text-xs font-bold text-white bg-black/40 px-2 py-1 rounded">{state.gridHeight}</span>
-          </div>
-          <input 
-            type="range" 
-            min="5" 
-            max="50" 
-            value={state.gridHeight}
-            onChange={(e) => setGridDimensions(state.gridWidth, Number(e.target.value))}
-            className="w-full h-2 bg-black/40 rounded-lg appearance-none cursor-pointer accent-[#9d4edd]"
-          />
-          <div className="text-[10px] text-gray-500">5 - 50 quadrados</div>
-        </div>
-
-        <button 
-          onClick={() => setGridDimensions(20, 20)}
-          className="w-full py-2 text-xs font-bold text-gray-400 hover:text-white bg-black/20 hover:bg-black/40 border border-[#2d1b4e] rounded transition-all"
-        >
-          Resetar para 20x20
-        </button>
-      </div>
-
-      <hr className="border-[#2d1b4e]/30" />
-
-      {/* ── EFEITOS DE TERRENO ── */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Efeitos de Terreno</h3>
-        
-        {/* Seleção de Tamanho */}
-        <div className="flex gap-1 mb-2">
-          {[1, 1.5, 2].map(s => (
-            <button
-              key={s}
-              onClick={() => setActivePuddleSize(s)}
-              className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${activePuddleSize === s ? 'bg-purple-600 border-purple-400 text-white' : 'bg-black/30 border-[#2d1b4e] text-gray-500 hover:text-white'}`}
-            >
-              Tam. {s}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { name: 'Sangue', color: '#880000' },
-            { name: 'Trevas', color: '#111111' },
-            { name: 'Veneno', color: '#006600' },
-            { name: 'Gelo',   color: '#aaaaff' },
-            { name: 'Caixa',  image: '/items/crate.png' },
-          ].map(p => (
-            <button
-              key={p.name}
-              onClick={() => {
-                if ('color' in p) {
-                    const svg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                        <path fill="${p.color}" opacity="0.6" d="M25,45 C10,60 15,85 40,90 C65,95 90,85 90,60 C90,35 70,10 45,15 C30,18 40,30 25,45 Z" />
-                      </svg>
-                    `)}`;
-                    addMapObject(svg, 1, 1);
-                } else if ('image' in p) {
-                    addMapObject(p.image!, 1, 1);
-                }
-              }}
-              className="flex items-center justify-center gap-2 bg-black/30 border border-[#2d1b4e] hover:border-[#9d4edd] py-2 rounded text-[10px] font-bold uppercase transition-all"
-            >
-              {'color' in p ? <div className="w-2 h-2 rounded-full" style={{backgroundColor:p.color}} /> : '📦'}
-              {p.name}
-            </button>
-          ))}
-        </div>
-
-        {selectedMapObjectId && (
-          <button
-            onClick={() => deleteMapObject(selectedMapObjectId)}
-            className="flex items-center justify-center gap-2 w-full py-2 mt-2 bg-red-900/40 border border-red-500/50 text-red-200 rounded text-[10px] font-bold uppercase transition-all hover:bg-red-900/60 hover:border-red-500"
-          >
-            <Trash2 size={12} /> Remover Poça Selecionada
-          </button>
-        )}
-      </div>
-
-      <hr className="border-[#2d1b4e]/30" />
-
       <div className="space-y-2">
         <h3 className="font-bold text-white text-xs uppercase tracking-widest opacity-60">Limpar / Revelar</h3>
         <div className="space-y-1 mb-2">

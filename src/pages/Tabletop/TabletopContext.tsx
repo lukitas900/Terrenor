@@ -4,7 +4,7 @@ import type { TabletopState, Character, MapObject, MapArrow } from './types';
 import { loadStateFromDB, saveStateToDB } from './indexedDB';
 
 // Tools
-export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow' | 'fog' | 'reveal' | 'sculpt';
+export type ActiveTool = 'select' | 'paint' | 'pan' | 'arrow' | 'fog' | 'reveal' | 'sculpt' | 'terrain';
 
 // Helper: generate rectangular active cells
 const generateRectCells = (w: number, h: number): string[] => {

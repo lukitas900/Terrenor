@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTabletop } from './TabletopContext';
-import { Plus, Trash2, X, Sword, Copy } from 'lucide-react';
+import { Plus, Trash2, X, Sword, Copy, ChevronUp } from 'lucide-react';
 import type { Character, InventoryItem } from './types';
 
 const SIZES = [1, 1.5, 2, 3, 4, 6];
@@ -15,6 +15,7 @@ export const RightSidebar = () => {
   } = useTabletop();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEntityListCollapsed, setIsEntityListCollapsed] = useState(false);
 
   const selectedCharacter = state.characters.find(c => c.id === selectedCharacterId);
   const selectedMapObject = state.mapObjects.find(o => o.id === selectedMapObjectId);
@@ -38,7 +39,24 @@ export const RightSidebar = () => {
 
       {/* List all Characters for Quick Selection */}
       <div className="space-y-2">
-        <h3 className="font-bold text-white flex items-center gap-2"><Sword size={16} /> Entidades no Tabuleiro</h3>
+        <button 
+          onClick={() => setIsEntityListCollapsed(prev => !prev)}
+          className="w-full font-bold text-white flex items-center gap-2 hover:text-purple-300 transition-colors group cursor-pointer select-none"
+        >
+          <Sword size={16} /> 
+          <span className="flex-1 text-left">Entidades no Tabuleiro</span>
+          <span className="text-gray-500 text-[10px] font-mono mr-1">{state.characters.length}</span>
+          <span className={`text-gray-500 group-hover:text-purple-400 transition-transform duration-200 ${isEntityListCollapsed ? '' : 'rotate-180'}`}>
+            <ChevronUp size={16} />
+          </span>
+        </button>
+        <div 
+          className="overflow-hidden transition-all duration-300 ease-in-out"
+          style={{ 
+            maxHeight: isEntityListCollapsed ? '0px' : `${Math.max(state.characters.length * 52 + 20, 60)}px`,
+            opacity: isEntityListCollapsed ? 0 : 1,
+          }}
+        >
         <ul className="space-y-1">
           {state.characters.map(char => (
             <li 
@@ -72,6 +90,7 @@ export const RightSidebar = () => {
             <li className="text-gray-600 text-xs italic text-center py-4">Nenhum personagem no tabuleiro.</li>
           )}
         </ul>
+        </div>
       </div>
 
       {selectedCharacter && (
