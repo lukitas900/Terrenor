@@ -57,7 +57,7 @@ export const races: Race[] = [
     categoryLabel: 'Raça Jogável',
     playable: true,
     canUseMagic: false,
-    image: '/races/humans.jpg',
+    image: '/races/humans.png',
     traits: ['Versatilidade', 'Adaptabilidade', 'Sem limitações extremas', 'Balanceado em tudo', 'Vantagem em Persuasão'],
     passive: {
       name: 'Vantagem em Persuasão',
@@ -99,7 +99,7 @@ export const races: Race[] = [
     categoryLabel: 'Raça Jogável',
     playable: true,
     canUseMagic: true,
-    image: '/races/skeletons.jpg',
+    image: '/races/skeletons.png',
     traits: ['Imune a sangramento', 'Imune a veneno', 'Canalização mágica', 'Eco de magias', 'Vínculo espectral'],
     passive: {
       name: 'Imune a Sangramento e Veneno',
@@ -141,7 +141,7 @@ export const races: Race[] = [
     categoryLabel: 'Raça Jogável',
     playable: true,
     canUseMagic: false,
-    image: '/races/orcs.jpg',
+    image: '/races/orcs.png',
     traits: ['Quatro braços', 'Alta Força', 'Alta Vitalidade', '+4 dano em contra-ataques', 'Pode usar 2 armas médias sem desvantagem'],
     passive: {
       name: '+4 de Dano em Contra-ataques',
@@ -267,7 +267,7 @@ export const races: Race[] = [
     categoryLabel: 'Raça Jogável',
     playable: true,
     canUseMagic: false,
-    image: '/races/obumbratio.jpg',
+    image: '/races/obumbratio.png',
     traits: ['Vantagem em Furtividade', 'Tamanho pequeno', 'Dano furtivo', 'Invisibilidade', 'Ardiloso'],
     passive: {
       name: 'Vantagem em Furtividade',
@@ -311,7 +311,7 @@ export const races: Race[] = [
     playable: false,
     canUseMagic: true,
     traits: ['Resistência a fogo', 'Escuridão', 'Persuasão', 'Magia infernal'],
-    image: '/races/tieflings.jpg',
+    image: '/races/tieflings.png',
   },
   {
     id: 'anao',

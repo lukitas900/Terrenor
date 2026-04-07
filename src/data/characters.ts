@@ -71,7 +71,7 @@ export const characters = [
         name: 'Abel',
         title: 'O Mago Médico (Falecido)',
         description: 'Conhecido por dominar magias de sangue, cura e manipulação da vida. Foi um dos fundadores do maior círculo mágico do continente. Foi responsável por inúmeros avanços em medicina arcana.',
-        image: '/characters/semImagem.png',
+        image: '/characters/Abel.png',
         type: 'notavel'
     },
     {
@@ -79,7 +79,7 @@ export const characters = [
         name: 'Mufus',
         title: 'O Sábio dos Fungos',
         description: 'Especialista em venenos, contaminações naturais e esporos místicos. Considerado excêntrico, mas extremamente inteligente. Foi Guardião do Selo do Leste, um cargo confiado apenas a magos de extrema confiança. Prefere o isolamento.',
-        image: '/characters/semImagem.png',
+        image: '/characters/mufus.png',
         type: 'notavel'
     },
     {
@@ -87,7 +87,7 @@ export const characters = [
         name: 'Lupos',
         title: 'O Guerreiro Arcano',
         description: 'Um mago de combate direto, estrategista militar. Comandante Arcano das Forças de Isidor. É temido por sua força e lealdade inflexível. Criador do selo de armas mágicas.',
-        image: '/characters/semImagem.png',
+        image: '/characters/Lupos.png',
         type: 'notavel'
     },
     {
@@ -95,7 +95,7 @@ export const characters = [
         name: 'Kátia',
         title: 'A Senhora da Magia (Falecida)',
         description: 'Antiga Líder da Associação dos Magos de Isidor, Kátia foi a ponte entre o poder político e o arcano. Dominava quase todos os ramos da magia. Líder do trio de magos composto por Lupos, Mufus e Abel. Sua presença foi essencial para manter a ordem.',
-        image: '/characters/semImagem.png',
+        image: '/characters/Katia.png',
         type: 'notavel'
     },
     {
@@ -112,7 +112,7 @@ export const characters = [
         title: 'Exploradora das Areias',
         description: 'Lendária exploradora que desvendou os segredos de templos esquecidos sob as dunas.',
         fullDescription: 'A princípio apenas uma corajosa exploradora das areias, Mikalia fez sua lenda desvendando templos abandonados perdidos sob as dunas incansáveis do deserto profundo. Com o passar do tempo, o vasto número de comerciantes, forasteiros e aventureiros que seguiam suas rotas começou a se aglomerar em torno de seus acampamentos seguros em busca de abrigo e negociações.\n\nSob a liderança firme e inigualável habilidade de sobrevivência de Mikalia, esse assentamento improvisado floresceu, transformando-se de um punhado de tendas em uma gigantesca e respeitada cidade erguida no centro do deserto.\n\nHoje coroada como Rainha, ela transcendeu a fama original como desbravadora, conquistando o respeito absoluto de seu povo e de reinos distantes através da coragem, hospitalidade e uma liderança implacável forjada nas areias.',
-        image: '/characters/semImagem.png',
+        image: '/characters/rainha-mikalia.png',
         type: 'notavel'
     },
     {
@@ -121,7 +121,7 @@ export const characters = [
         title: 'O Tecelão de Runas',
         description: 'Artesão lendário de Valenor, cujas oficinas deram vida a armas e joias de poder imensurável.',
         fullDescription: 'Thamior, o Tecelão de Runas – artesão lendário de Valenor, suas oficinas já produziram armas e joias mágicas. Após sua morte, sua forja permanece fechada, mas dizem que algumas de suas criações carregam parte de sua alma.',
-        image: '/characters/semImagem.png',
+        image: '/characters/thamior.png',
         type: 'notavel'
     },
     {
